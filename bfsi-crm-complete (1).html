@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BUSINESSNEXT — BFSI CRM POC</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'DM Sans',sans-serif;overflow:hidden}
+    #root{width:100vw;height:100vh;overflow:hidden}
+    ::-webkit-scrollbar{width:6px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px}
+    ::-webkit-scrollbar-thumb:hover{background:#94A3B8}
+    input,select,textarea{font-family:'DM Sans',sans-serif}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState,useEffect,useRef}=React;
+
+const C={
+  bg:"#F8F9FB",sf:"#FFFFFF",sa:"#F1F5F9",bd:"#E2E8F0",bh:"#CBD5E1",
+  ac:"#0369A1",ad:"rgba(3,105,161,0.08)",ag:"rgba(3,105,161,0.15)",
+  go:"#D97706",gd:"rgba(217,119,6,0.08)",
+  gn:"#059669",gnd:"rgba(5,150,105,0.08)",
+  rd:"#DC2626",rdd:"rgba(220,38,38,0.06)",
+  pu:"#7C3AED",pd:"rgba(124,58,237,0.08)",
+  tp:"#1E293B",ts:"#475569",tm:"#94A3B8",
+  is:"#00897B",isd:"rgba(0,137,123,0.08)",
+};
+const F={d:"'DM Sans',sans-serif",m:"'JetBrains Mono',monospace"};
+
+// ===== DATA =====
+const leads=[
+  {id:"LD-4821",name:"Rajesh Sharma",product:"Home Loan",amount:"$450K",source:"Website",score:87,status:"Hot",branch:"Connaught Place",rm:"Ankit Verma",date:"2026-05-15",phone:"+1 555-0121",email:"rajesh.s@email.com",stage:"Document Collection",bureau:{score:782,agency:"Experian",date:"2026-05-10",status:"Good"}},
+  {id:"LD-4822",name:"Priya Mehta",product:"Business Loan",amount:"$1.2M",source:"Branch Walk-in",score:72,status:"Warm",branch:"Bandra West",rm:"Sneha Patel",date:"2026-05-14",phone:"+1 555-0122",email:"priya.m@corp.com",stage:"Initial Contact",bureau:{score:710,agency:"TransUnion",date:"2026-05-08",status:"Fair"}},
+  {id:"LD-4823",name:"Vikram Industries",product:"Working Capital",amount:"$3.5M",source:"Referral",score:91,status:"Hot",branch:"MG Road",rm:"Rahul Gupta",date:"2026-05-16",phone:"+1 555-0123",email:"vikram@industries.in",stage:"Proposal Sent",bureau:{score:815,agency:"Equifax",date:"2026-05-12",status:"Excellent"}},
+  {id:"LD-4824",name:"Sunita Agarwal",product:"Fixed Deposit",amount:"$250K",source:"Campaign",score:45,status:"Cold",branch:"Rajouri Garden",rm:"Ankit Verma",date:"2026-05-12",phone:"+1 555-0124",email:"sunita.a@gmail.com",stage:"Follow-up",bureau:{score:680,agency:"Experian",date:"2026-04-20",status:"Fair"}},
+  {id:"LD-4825",name:"Arjun Kapoor",product:"Personal Loan",amount:"$80K",source:"Mobile App",score:63,status:"Warm",branch:"Koramangala",rm:"Deepa Nair",date:"2026-05-17",phone:"+1 555-0125",email:"arjun.k@email.com",stage:"Credit Check",bureau:{score:745,agency:"Experian",date:"2026-05-15",status:"Good"}},
+  {id:"LD-4826",name:"Meera Foods Pvt Ltd",product:"OD Facility",amount:"$800K",source:"DSA",score:78,status:"Hot",branch:"Anna Nagar",rm:"Sneha Patel",date:"2026-05-13",phone:"+1 555-0126",email:"info@meerafoods.com",stage:"Negotiation",bureau:{score:760,agency:"TransUnion",date:"2026-05-11",status:"Good"}},
+];
+
+const customers=[
+  {id:"CIF-100234",name:"Rajesh Sharma",type:"Individual",segment:"HNI",banking:"Conventional",rm:"Ankit Verma",branch:"Connaught Place",products:["Savings A/C","Home Loan","Credit Card","FD"],totalRelValue:"$1.8M",since:"2019",nps:8,lastInteraction:"2 days ago",riskProfile:"Moderate",kycStatus:"Verified",pan:"ABCPS1234R",dob:"15-Mar-1985",
+    balances:{savings:"$124,500",fd:"$680,000",loan:"$520,000",card:"$12,400"},
+    ai:{churnRisk:12,clv:"$2.4M",sentiment:"Positive",healthScore:82,propensity:{wealth:89,topUp:78,card:72,insurance:65},anomalies:0},
+    spending:{groceries:18,dining:12,travel:25,utilities:8,shopping:22,other:15},
+    channels:{mobile:45,branch:15,netBanking:30,atm:10},
+    family:[{name:"Kavita Sharma",relation:"Spouse",customer:true},{name:"Aryan Sharma",relation:"Son",customer:false}],
+    docs:[{name:"KYC - Aadhaar",status:"Verified",date:"2024-01-15"},{name:"KYC - PAN",status:"Verified",date:"2024-01-15"},{name:"Income Proof",status:"Verified",date:"2025-03-20"},{name:"Address Proof",status:"Pending Renewal",date:"2023-06-10"}],
+  },
+  {id:"CIF-100567",name:"Vikram Industries",type:"Corporate",segment:"MSME",banking:"Conventional",rm:"Rahul Gupta",branch:"MG Road",products:["Current A/C","Working Capital","Trade Finance","POS"],totalRelValue:"$12.4M",since:"2016",nps:9,lastInteraction:"Today",riskProfile:"Low",kycStatus:"Verified",pan:"AADCV5678K",dob:"Estd. 2010",
+    balances:{current:"$2,340,000",wc:"$4,200,000",trade:"$3,100,000",pos:"$85,000/mo"},
+    ai:{churnRisk:5,clv:"$18.6M",sentiment:"Very Positive",healthScore:94,propensity:{lc:82,insurance:71,fx:68,payroll:55},anomalies:0},
+    spending:{vendors:40,payroll:30,operations:15,logistics:10,other:5},
+    channels:{netBanking:55,branch:20,api:20,mobile:5},family:[],
+    docs:[{name:"MOA & AOA",status:"Verified",date:"2023-08-01"},{name:"Board Resolution",status:"Verified",date:"2025-01-10"},{name:"GST Certificate",status:"Verified",date:"2025-04-15"},{name:"Audited Financials FY25",status:"Received",date:"2026-04-30"},{name:"CMA Data",status:"Pending",date:"-"}],
+  },
+  {id:"CIF-200891",name:"Ahmed Al-Rashid",type:"Individual",segment:"HNI",banking:"Islamic",rm:"Fatima Hassan",branch:"Downtown Dubai",products:["Wadiah Savings","Murabaha Home Finance","Ijara Auto","Takaful"],totalRelValue:"$3.2M",since:"2018",nps:9,lastInteraction:"Yesterday",riskProfile:"Low",kycStatus:"Verified",pan:"UAE-ID-784-1990-XXXX",dob:"22-Jun-1990",
+    balances:{wadiah:"$245,000",murabaha:"$1,800,000",ijara:"$85,000",takaful:"$120,000"},
+    ai:{churnRisk:8,clv:"$5.1M",sentiment:"Positive",healthScore:88,propensity:{sukuk:91,musharakah:76,takafulPlus:70,wakala:62},anomalies:0},
+    spending:{groceries:12,dining:8,travel:30,charity:15,shopping:20,other:15},
+    channels:{mobile:55,branch:20,netBanking:20,atm:5},
+    family:[{name:"Sara Al-Rashid",relation:"Spouse",customer:true},{name:"Omar Al-Rashid",relation:"Father",customer:true}],
+    docs:[{name:"Emirates ID",status:"Verified",date:"2025-01-01"},{name:"Passport",status:"Verified",date:"2025-01-01"},{name:"Salary Certificate",status:"Verified",date:"2026-02-15"}],
+    islamic:{shariaCompliance:"Fully Compliant",shariaAdvisor:"Dr. Yusuf Al-Qaradawi Board",
+      profitDistribution:[{product:"Wadiah Savings",mechanism:"Hibah (Gift)",lastPayout:"$1,240",freq:"Monthly"},{product:"Murabaha Home Finance",mechanism:"Cost + Margin (3.2%)",monthlyPayment:"$8,450",remaining:"18 yrs"},{product:"Ijara Auto",mechanism:"Lease Rental",monthlyPayment:"$1,200",remaining:"2 yrs"}],
+      zakatCalc:{totalEligible:"$2,150,000",zakatDue:"$53,750",lastPaid:"$52,000",status:"Upcoming"},
+      contracts:[{type:"Murabaha",ref:"MRB-44521",status:"Active",value:"$1,800,000",margin:"3.2%",shariaApproval:"Approved"},{type:"Ijara Muntahia Bittamleek",ref:"IJR-33210",status:"Active",value:"$85,000",rental:"$1,200/mo",shariaApproval:"Approved"},{type:"Takaful (Family)",ref:"TKF-78901",status:"Active",coverage:"$500,000",contribution:"$2,400/yr",shariaApproval:"Approved"}],
+      preferredStructures:["Murabaha","Ijara","Wakala","Sukuk"]},
+  },
+  {id:"CIF-200445",name:"Al Baraka Trading LLC",type:"Corporate",segment:"SME",banking:"Islamic",rm:"Khalid Bin Saeed",branch:"Business Bay",products:["Mudarabah Current A/C","Musharakah WC","Islamic Trade Finance","Takaful Commercial"],totalRelValue:"$8.7M",since:"2020",nps:8,lastInteraction:"3 days ago",riskProfile:"Moderate",kycStatus:"Verified",pan:"UAE-TL-2020-XXXX",dob:"Estd. 2015",
+    balances:{mudarabah:"$1,450,000",musharakah:"$3,200,000",trade:"$2,800,000",takaful:"$250,000"},
+    ai:{churnRisk:15,clv:"$12.8M",sentiment:"Neutral",healthScore:74,propensity:{sukukInvest:85,ijaraEquip:78,fxHedge:60,payroll:45},anomalies:1},
+    spending:{vendors:45,payroll:25,operations:15,logistics:10,other:5},
+    channels:{netBanking:50,branch:25,api:15,mobile:10},family:[],
+    docs:[{name:"Trade License",status:"Verified",date:"2025-06-01"},{name:"MOA",status:"Verified",date:"2023-03-15"},{name:"Board Resolution",status:"Pending",date:"-"}],
+    islamic:{shariaCompliance:"Fully Compliant",shariaAdvisor:"Internal Sharia Board",
+      profitDistribution:[{product:"Mudarabah Current A/C",mechanism:"Profit Sharing (60:40)",lastPayout:"$4,820",freq:"Quarterly"},{product:"Musharakah WC",mechanism:"Diminishing Musharakah",monthlyPayment:"$28,500",remaining:"3 yrs"}],
+      zakatCalc:{totalEligible:"$4,650,000",zakatDue:"$116,250",lastPaid:"$110,000",status:"Paid"},
+      contracts:[{type:"Mudarabah",ref:"MDR-55102",status:"Active",value:"$1,450,000",profitRatio:"60:40",shariaApproval:"Approved"},{type:"Diminishing Musharakah",ref:"MSK-66203",status:"Active",value:"$3,200,000",bankShare:"65%",shariaApproval:"Approved"},{type:"Murabaha Trade",ref:"MRT-77304",status:"Active",value:"$2,800,000",margin:"2.8%",shariaApproval:"Approved"}],
+      preferredStructures:["Musharakah","Mudarabah","Murabaha","Istisna"]},
+  },
+];
+
+const opportunities=[
+  {id:"OPP-301",customer:"Rajesh Sharma",product:"Wealth Management",value:"$500K",stage:"Proposal",probability:75,rm:"Ankit Verma",dueDate:"2026-06-01"},
+  {id:"OPP-302",customer:"Vikram Industries",product:"LC/BG Facility",value:"$2M",stage:"Negotiation",probability:60,rm:"Rahul Gupta",dueDate:"2026-05-28"},
+  {id:"OPP-303",customer:"Priya Mehta",product:"Insurance",value:"$120K",stage:"Discovery",probability:40,rm:"Sneha Patel",dueDate:"2026-06-15"},
+  {id:"OPP-304",customer:"Sunita Agarwal",product:"Mutual Fund SIP",value:"$50K/yr",stage:"Qualification",probability:55,rm:"Ankit Verma",dueDate:"2026-06-10"},
+  {id:"OPP-305",customer:"Arjun Kapoor",product:"Credit Card Upgrade",value:"$20K limit",stage:"Proposal",probability:80,rm:"Deepa Nair",dueDate:"2026-05-25"},
+];
+
+const serviceRequests=[
+  {id:"SR-7801",customer:"Rajesh Sharma",category:"Account",issue:"Address Change Request",priority:"Medium",status:"In Progress",sla:"4h remaining",assignee:"Ops Team",created:"2026-05-17"},
+  {id:"SR-7802",customer:"Vikram Industries",category:"Loan",issue:"EMI Restructuring Query",priority:"High",status:"Escalated",sla:"Breached",assignee:"Credit Head",created:"2026-05-16"},
+  {id:"SR-7803",customer:"Priya Mehta",category:"Card",issue:"Disputed Transaction $15,400",priority:"High",status:"Open",sla:"6h remaining",assignee:"Card Ops",created:"2026-05-18"},
+  {id:"SR-7804",customer:"Sunita Agarwal",category:"Digital",issue:"Mobile Banking Login Issue",priority:"Low",status:"Resolved",sla:"Within SLA",assignee:"IT Helpdesk",created:"2026-05-15"},
+];
+
+const campaigns=[
+  {id:"CMP-51",name:"Monsoon Home Loan Fest",channel:"Multi-channel",status:"Active",target:5000,reached:3420,converted:187,roi:"4.2x",startDate:"2026-05-01",endDate:"2026-06-30",budget:"$150K"},
+  {id:"CMP-52",name:"FD Rate Booster",channel:"SMS + Email",status:"Active",target:12000,reached:8900,converted:612,roi:"6.8x",startDate:"2026-04-15",endDate:"2026-05-31",budget:"$50K"},
+  {id:"CMP-53",name:"MSME Credit Line Push",channel:"RM Outreach",status:"Planned",target:800,reached:0,converted:0,roi:"-",startDate:"2026-06-01",endDate:"2026-07-31",budget:"$80K"},
+];
+
+const tasks=[
+  {id:1,task:"Follow up with Rajesh Sharma on Home Loan docs",due:"Today",priority:"High",type:"Lead",time:"10:00 AM"},
+  {id:2,task:"Schedule meeting with Vikram Industries CFO",due:"Tomorrow",priority:"High",type:"Opportunity",time:"2:00 PM"},
+  {id:3,task:"Review Priya Mehta's disputed transaction",due:"Today",priority:"Critical",type:"Service",time:"11:30 AM"},
+  {id:4,task:"Send FD maturity reminder to 23 customers",due:"Today",priority:"Medium",type:"Campaign",time:"3:00 PM"},
+  {id:5,task:"Complete KYC re-verification for 5 accounts",due:"This Week",priority:"Medium",type:"Compliance",time:"-"},
+  {id:6,task:"Prepare MIS report for Branch Head",due:"Friday",priority:"Low",type:"Report",time:"-"},
+];
+
+const auditLogs=[
+  {ts:"2026-05-18 09:45:12",user:"Ankit Verma",action:"Lead Status Changed",entity:"LD-4821",detail:"Status: Warm → Hot",ip:"10.0.2.45"},
+  {ts:"2026-05-18 09:32:08",user:"System",action:"Auto Assignment",entity:"LD-4826",detail:"Assigned to Sneha Patel (Round Robin)",ip:"-"},
+  {ts:"2026-05-18 09:15:44",user:"Sneha Patel",action:"Interaction Logged",entity:"CIF-100567",detail:"Call - 8 min - Discussed WC renewal",ip:"10.0.3.12"},
+  {ts:"2026-05-18 08:50:00",user:"System",action:"SLA Breach Alert",entity:"SR-7802",detail:"Resolution SLA breached - escalated to L2",ip:"-"},
+  {ts:"2026-05-17 17:30:22",user:"Rahul Gupta",action:"Opportunity Updated",entity:"OPP-302",detail:"Stage: Proposal → Negotiation",ip:"10.0.1.88"},
+  {ts:"2026-05-17 16:15:10",user:"Admin",action:"Workflow Modified",entity:"WF-Lead-Assignment",detail:"Added product-based routing rule",ip:"10.0.0.1"},
+  {ts:"2026-05-17 14:20:33",user:"Deepa Nair",action:"Document Uploaded",entity:"LD-4825",detail:"Uploaded salary slip for credit check",ip:"10.0.4.22"},
+  {ts:"2026-05-17 11:00:00",user:"System",action:"KYC Expiry Alert",entity:"CIF-100234",detail:"Address proof expiring in 30 days",ip:"-"},
+  {ts:"2026-05-17 10:45:18",user:"Ankit Verma",action:"SR Created",entity:"SR-7801",detail:"Category: Account, Priority: Medium",ip:"10.0.2.45"},
+  {ts:"2026-05-17 09:00:00",user:"System",action:"Campaign Triggered",entity:"CMP-52",detail:"Batch SMS sent to 2,400 customers",ip:"-"},
+];
+
+// ===== COMPONENTS =====
+const Badge=({children,color=C.ac,bg})=>(
+  <span style={{display:"inline-block",padding:"2px 10px",borderRadius:20,fontSize:11,fontWeight:600,letterSpacing:0.3,color,background:bg||`${color}18`,border:`1px solid ${color}30`,whiteSpace:"nowrap"}}>{children}</span>
+);
+const Dot=({color})=>(<span style={{display:"inline-block",width:8,height:8,borderRadius:"50%",background:color,marginRight:6,boxShadow:`0 0 6px ${color}60`}}/>);
+const KPI=({label,value,sub,color=C.ac,trend})=>(
+  <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:"16px 18px",flex:1,minWidth:160,position:"relative",overflow:"hidden"}}
+    onMouseEnter={e=>{e.currentTarget.style.borderColor=color;e.currentTarget.style.boxShadow=`0 0 20px ${color}15`}}
+    onMouseLeave={e=>{e.currentTarget.style.borderColor=C.bd;e.currentTarget.style.boxShadow="none"}}>
+    <div style={{position:"absolute",top:-20,right:-20,width:70,height:70,borderRadius:"50%",background:`${color}08`}}/>
+    <div style={{fontSize:10,color:C.tm,textTransform:"uppercase",letterSpacing:1.2,marginBottom:6,fontWeight:600}}>{label}</div>
+    <div style={{fontSize:26,fontWeight:700,color:C.tp,fontFamily:F.m}}>{value}</div>
+    <div style={{display:"flex",alignItems:"center",gap:6,marginTop:4}}>
+      {trend&&<span style={{fontSize:11,color:trend>0?C.gn:C.rd,fontWeight:600}}>{trend>0?"▲":"▼"}{Math.abs(trend)}%</span>}
+      {sub&&<span style={{fontSize:11,color:C.tm}}>{sub}</span>}
+    </div>
+  </div>
+);
+const SH=({title,count,action,onAction})=>(
+  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+    <div style={{display:"flex",alignItems:"center",gap:10}}>
+      <h3 style={{margin:0,fontSize:15,fontWeight:700,color:C.tp}}>{title}</h3>
+      {count!==undefined&&<Badge color={C.tm}>{count}</Badge>}
+    </div>
+    {action&&<button onClick={onAction} style={{background:"none",border:`1px solid ${C.bd}`,color:C.ac,padding:"5px 14px",borderRadius:8,cursor:"pointer",fontSize:12,fontWeight:600,fontFamily:F.d}}>{action}</button>}
+  </div>
+);
+const Tabs=({tabs,active,onSelect})=>(
+  <div style={{display:"flex",gap:2,background:C.sa,borderRadius:10,padding:3,marginBottom:18}}>
+    {tabs.map(t=>(
+      <button key={t} onClick={()=>onSelect(t)} style={{flex:1,padding:"7px 10px",borderRadius:8,border:"none",cursor:"pointer",fontSize:12,fontWeight:600,fontFamily:F.d,background:active===t?C.ac:"transparent",color:active===t?"#fff":C.tm,transition:"all 0.2s"}}>{t}</button>
+    ))}
+  </div>
+);
+const Bar=({value,max=100,color=C.ac})=>(
+  <div style={{width:80,height:6,borderRadius:3,background:`${color}20`,position:"relative"}}>
+    <div style={{width:`${(value/max)*100}%`,height:"100%",borderRadius:3,background:color,transition:"width 0.6s ease"}}/>
+  </div>
+);
+const Inp=({label,type="text",placeholder,value,onChange,options})=>(
+  <div style={{marginBottom:12}}>
+    <div style={{fontSize:11,fontWeight:600,color:C.tm,marginBottom:4,textTransform:"uppercase",letterSpacing:0.5}}>{label}</div>
+    {options?
+      <select value={value} onChange={onChange} style={{width:"100%",padding:"8px 12px",borderRadius:8,border:`1px solid ${C.bd}`,background:C.sa,color:C.tp,fontSize:13,fontFamily:F.d,outline:"none"}}>
+        {options.map(o=><option key={o} value={o}>{o}</option>)}
+      </select>
+    :type==="textarea"?
+      <textarea value={value} onChange={onChange} placeholder={placeholder} rows={3} style={{width:"100%",padding:"8px 12px",borderRadius:8,border:`1px solid ${C.bd}`,background:C.sa,color:C.tp,fontSize:13,fontFamily:F.d,outline:"none",resize:"vertical"}}/>
+    :
+      <input type={type} value={value} onChange={onChange} placeholder={placeholder} style={{width:"100%",padding:"8px 12px",borderRadius:8,border:`1px solid ${C.bd}`,background:C.sa,color:C.tp,fontSize:13,fontFamily:F.d,outline:"none"}}/>
+    }
+  </div>
+);
+const Btn=({children,primary,color,onClick,small,full})=>(
+  <button onClick={onClick} style={{padding:small?"5px 12px":"10px 18px",borderRadius:8,border:primary?"none":`1px solid ${C.bd}`,cursor:"pointer",background:primary?`linear-gradient(135deg,${color||C.ac},${C.pu})`:"transparent",color:primary?"#fff":color||C.ts,fontSize:small?11:13,fontWeight:primary?700:600,fontFamily:F.d,width:full?"100%":"auto"}}>{children}</button>
+);
+const Modal=({title,onClose,children,wide})=>(
+  <div style={{position:"fixed",inset:0,zIndex:500,display:"flex",alignItems:"center",justifyContent:"center"}} onClick={onClose}>
+    <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.3)"}}/>
+    <div onClick={e=>e.stopPropagation()} style={{position:"relative",background:C.sf,borderRadius:16,padding:24,width:wide?720:480,maxHeight:"85vh",overflowY:"auto",boxShadow:"0 20px 60px rgba(0,0,0,0.15)",border:`1px solid ${C.bd}`}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+        <h3 style={{margin:0,fontSize:18,fontWeight:800}}>{title}</h3>
+        <button onClick={onClose} style={{background:"none",border:"none",fontSize:22,color:C.tm,cursor:"pointer"}}>×</button>
+      </div>
+      {children}
+    </div>
+  </div>
+);
+
+// ===== MAIN APP =====
+function App(){
+  const[mod,setMod]=useState("Dashboard");
+  const[collapsed,setCollapsed]=useState(false);
+  const[leadDetail,setLeadDetail]=useState(null);
+  const[custDetail,setCustDetail]=useState(null);
+  const[dashTab,setDashTab]=useState("Overview");
+  const[leadFilter,setLeadFilter]=useState("All");
+  const[searchQ,setSearchQ]=useState("");
+  const[showNotif,setShowNotif]=useState(false);
+  const[srFilter,setSrFilter]=useState("All");
+  const[c360Tab,setC360Tab]=useState("Overview");
+  const[custType,setCustType]=useState("All");
+  const[settingsTab,setSettingsTab]=useState("Workflows");
+  const[dataMasked,setDataMasked]=useState(true);
+
+  // Masking utility — masks PII & financial data based on type
+  const mask=(val,type)=>{
+    if(!dataMasked||!val) return val;
+    const s=String(val);
+    switch(type){
+      case "phone": return s.replace(/(\+?\d{1,3}\s?\d{3})\s?\d{3,4}\s?(\d{2,4})/, "$1-●●●●-$2");
+      case "email": {const[u,d]=s.split("@"); return u?u[0]+"●●●●@"+(d||""):"●●●●";}
+      case "pan": return s.length>4?s.slice(0,2)+"●●●●●●"+s.slice(-2):"●●●●";
+      case "balance": return s.replace(/[\d,]+/, "●●●,●●●");
+      case "amount": return s.replace(/\$[\d,.]+[KMB]?/, "$●●●");
+      case "bureau": return "●●●";
+      default: return s.slice(0,2)+"●●●●"+s.slice(-2);
+    }
+  };
+
+  // Modal states
+  const[showLogInteraction,setShowLogInteraction]=useState(false);
+  const[showCreateSR,setShowCreateSR]=useState(false);
+  const[showCreateLead,setShowCreateLead]=useState(false);
+  const[showDocUpload,setShowDocUpload]=useState(false);
+  const[showBulkAction,setShowBulkAction]=useState(false);
+  const[showQuickComm,setShowQuickComm]=useState(false);
+  const[showCalendar,setShowCalendar]=useState(false);
+  const[showEligibility,setShowEligibility]=useState(false);
+  const[showDedupe,setShowDedupe]=useState(false);
+  const[showNPS,setShowNPS]=useState(false);
+
+  // Form states
+  const[interactionForm,setInteractionForm]=useState({type:"Call",subject:"",notes:"",duration:"",outcome:"Positive"});
+  const[srForm,setSrForm]=useState({customer:"",category:"Account",priority:"Medium",issue:""});
+  const[leadForm,setLeadForm]=useState({name:"",phone:"",email:"",product:"Home Loan",source:"Website",amount:""});
+  const[commForm,setCommForm]=useState({channel:"Email",to:"",subject:"",body:""});
+  const[selectedLeads,setSelectedLeads]=useState([]);
+
+  const navW=collapsed?64:220;
+  const modules=[{n:"Dashboard",i:"◫"},{n:"Leads",i:"◉"},{n:"Customers",i:"☉"},{n:"Opportunities",i:"△"},{n:"Service Desk",i:"⚑"},{n:"Campaigns",i:"⟐"},{n:"Reports",i:"▤"},{n:"Settings",i:"⚙"}];
+
+  const toggleLead=(id)=>{
+    setSelectedLeads(p=>p.includes(id)?p.filter(x=>x!==id):[...p,id]);
+  };
+
+  return(
+  <div style={{fontFamily:F.d,background:C.bg,color:C.tp,height:"100vh",display:"flex",fontSize:14,overflow:"hidden"}}>
+
+  {/* SIDEBAR */}
+  <nav style={{width:navW,height:"100vh",background:C.sf,borderRight:`1px solid ${C.bd}`,display:"flex",flexDirection:"column",transition:"width 0.25s",flexShrink:0,zIndex:10,overflowY:"auto"}}>
+    <div style={{padding:collapsed?"18px 10px":"18px 18px",borderBottom:`1px solid ${C.bd}`,display:"flex",alignItems:"center",gap:10}}>
+      <div style={{width:34,height:34,borderRadius:10,background:`linear-gradient(135deg,${C.ac},#6366F1)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:800,color:"#fff",flexShrink:0}}>BN</div>
+      {!collapsed&&<div><div style={{fontSize:13,fontWeight:800,letterSpacing:-0.3}}>BUSINESSNEXT</div><div style={{fontSize:9,color:C.tm,letterSpacing:0.5}}>BFSI CRM</div></div>}
+    </div>
+    <div style={{flex:1,padding:"10px 8px"}}>
+      {modules.map(m=>(
+        <button key={m.n} onClick={()=>setMod(m.n)} style={{width:"100%",display:"flex",alignItems:"center",gap:12,padding:collapsed?"10px 0":"9px 14px",justifyContent:collapsed?"center":"flex-start",borderRadius:10,border:"none",cursor:"pointer",marginBottom:2,fontFamily:F.d,fontSize:12,fontWeight:600,background:mod===m.n?C.ad:"transparent",color:mod===m.n?C.ac:C.ts,borderLeft:mod===m.n?`3px solid ${C.ac}`:"3px solid transparent",transition:"all 0.15s"}}>
+          <span style={{fontSize:16,width:22,textAlign:"center"}}>{m.i}</span>
+          {!collapsed&&m.n}
+        </button>
+      ))}
+    </div>
+    <button onClick={()=>setCollapsed(!collapsed)} style={{margin:"0 8px 14px",padding:8,borderRadius:8,border:`1px solid ${C.bd}`,background:"transparent",color:C.tm,cursor:"pointer",fontSize:14}}>{collapsed?"▸":"◂"}</button>
+  </nav>
+
+  {/* MAIN */}
+  <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0,height:"100vh",overflow:"hidden"}}>
+    {/* TOPBAR */}
+    <header style={{padding:"10px 24px",borderBottom:`1px solid ${C.bd}`,display:"flex",justifyContent:"space-between",alignItems:"center",background:C.sf,flexShrink:0}}>
+      <div style={{display:"flex",alignItems:"center",gap:16}}>
+        <h2 style={{margin:0,fontSize:18,fontWeight:800,letterSpacing:-0.5}}>{mod}</h2>
+        <div style={{display:"flex",alignItems:"center",gap:8,background:C.sa,borderRadius:10,padding:"6px 12px",minWidth:260,border:`1px solid ${C.bd}`}}>
+          <span style={{color:C.tm,fontSize:13}}>⌕</span>
+          <input placeholder="Search customers, leads, accounts..." value={searchQ} onChange={e=>setSearchQ(e.target.value)} style={{background:"none",border:"none",outline:"none",color:C.tp,fontSize:12,width:"100%",fontFamily:F.d}}/>
+        </div>
+      </div>
+      <div style={{display:"flex",alignItems:"center",gap:14}}>
+        <button onClick={()=>setDataMasked(!dataMasked)} style={{background:dataMasked?C.ad:C.gnd,border:`1px solid ${dataMasked?C.ac:C.gn}`,color:dataMasked?C.ac:C.gn,cursor:"pointer",fontSize:11,padding:"4px 12px",borderRadius:20,fontWeight:700,fontFamily:F.d,display:"flex",alignItems:"center",gap:4}} title={dataMasked?"Click to unmask sensitive data":"Click to mask sensitive data"}>
+          {dataMasked?"🔒 Data Masked":"🔓 Data Visible"}
+        </button>
+        <button onClick={()=>setShowCalendar(true)} style={{background:"none",border:"none",color:C.ts,cursor:"pointer",fontSize:18,padding:4}} title="Calendar">📅</button>
+        <button onClick={()=>setShowNotif(!showNotif)} style={{position:"relative",background:"none",border:"none",color:C.ts,cursor:"pointer",fontSize:18,padding:4}}>
+          🔔<span style={{position:"absolute",top:0,right:0,width:8,height:8,borderRadius:"50%",background:C.rd}}/>
+        </button>
+        <div style={{width:32,height:32,borderRadius:"50%",background:`linear-gradient(135deg,${C.go},${C.ac})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,color:"#fff",cursor:"pointer"}}>AV</div>
+        <div><div style={{fontSize:12,fontWeight:600}}>Ankit Verma</div><div style={{fontSize:10,color:C.tm}}>RM • CP Branch</div></div>
+      </div>
+    </header>
+
+    {/* NOTIFICATION PANEL */}
+    {showNotif&&<div style={{position:"absolute",right:100,top:52,width:340,zIndex:100,background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,boxShadow:"0 8px 32px rgba(0,0,0,0.1)",padding:16}}>
+      <div style={{fontSize:14,fontWeight:700,marginBottom:12}}>Notifications</div>
+      {[{text:"SLA Breach: SR-7802 EMI Restructuring",time:"2m ago",color:C.rd},{text:"Lead LD-4823 score upgraded to 91",time:"15m ago",color:C.gn},{text:"Dedup Alert: Rajesh Sharma — possible duplicate (CIF-100234)",time:"30m ago",color:C.go},{text:"Campaign CMP-51 hit 3000+ reach",time:"1h ago",color:C.ac},{text:"KYC renewal due for 5 accounts",time:"3h ago",color:C.go},{text:"Maker-Checker: Loan sanction pending your approval",time:"4h ago",color:C.pu}].map((n,i)=>(
+        <div key={i} style={{padding:"8px 0",borderBottom:i<5?`1px solid ${C.bd}`:"none",display:"flex",gap:10,alignItems:"flex-start"}}>
+          <Dot color={n.color}/><div><div style={{fontSize:12,color:C.tp}}>{n.text}</div><div style={{fontSize:10,color:C.tm,marginTop:2}}>{n.time}</div></div>
+        </div>
+      ))}
+    </div>}
+
+    {/* CONTENT */}
+    <main style={{flex:1,padding:24,overflowY:"auto",position:"relative",minHeight:0}} onClick={()=>showNotif&&setShowNotif(false)}>
+
+    {/* ========== DASHBOARD ========== */}
+    {mod==="Dashboard"&&<div>
+      <Tabs tabs={["Overview","My Pipeline","Branch Performance","Compliance"]} active={dashTab} onSelect={setDashTab}/>
+      {dashTab==="Overview"&&<>
+        <div style={{display:"flex",gap:14,marginBottom:20,flexWrap:"wrap"}}>
+          <KPI label="Total Leads (MTD)" value="342" sub="vs 289 last month" trend={18} color={C.ac}/>
+          <KPI label="Pipeline Value" value="$48.2M" sub="67 active opps" trend={12} color={C.gn}/>
+          <KPI label="Conversion Rate" value="23.4%" sub="Target: 20%" trend={5} color={C.go}/>
+          <KPI label="Open SRs" value="47" sub="8 SLA breached" trend={-3} color={C.rd}/>
+          <KPI label="NPS Score" value="72" sub="Industry avg: 58" trend={4} color={C.pu}/>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:20}}>
+          {/* Lead Funnel */}
+          <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:18}}>
+            <SH title="Lead Funnel"/>
+            {[{s:"New Enquiries",c:142,p:100,cl:C.ac},{s:"Contacted",c:98,p:69,cl:C.pu},{s:"Qualified",c:67,p:47,cl:C.go},{s:"Proposal Sent",c:41,p:29,cl:"#F97316"},{s:"Negotiation",c:28,p:20,cl:C.gn},{s:"Converted",c:18,p:13,cl:C.gn}].map((s,i)=>(
+              <div key={i} style={{display:"flex",alignItems:"center",gap:12,marginBottom:8}}>
+                <div style={{width:95,fontSize:11,color:C.ts,flexShrink:0}}>{s.s}</div>
+                <div style={{flex:1,height:22,background:`${s.cl}12`,borderRadius:6,position:"relative",overflow:"hidden"}}>
+                  <div style={{width:`${s.p}%`,height:"100%",borderRadius:6,background:`linear-gradient(90deg,${s.cl}40,${s.cl})`,transition:"width 0.8s"}}/>
+                  <span style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",fontSize:11,fontWeight:700,color:C.tp,fontFamily:F.m}}>{s.c}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* Product Pipeline */}
+          <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:18}}>
+            <SH title="Product-wise Pipeline"/>
+            {[{p:"Home Loan",v:"$18.5M",d:24,cl:C.ac},{p:"Business Loan",v:"$12.2M",d:15,cl:C.pu},{p:"Working Capital",v:"$8.7M",d:9,cl:C.go},{p:"Fixed Deposit",v:"$4.1M",d:31,cl:C.gn},{p:"Credit Card",v:"$2.8M",d:42,cl:"#F97316"},{p:"Insurance",v:"$1.9M",d:18,cl:C.rd}].map((p,i)=>(
+              <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:i<5?`1px solid ${C.bd}`:"none"}}>
+                <div style={{display:"flex",alignItems:"center",gap:10}}>
+                  <div style={{width:10,height:10,borderRadius:3,background:p.cl}}/><span style={{fontSize:12,fontWeight:600}}>{p.p}</span>
+                </div>
+                <div style={{display:"flex",alignItems:"center",gap:14}}>
+                  <span style={{fontSize:11,color:C.tm}}>{p.d} deals</span>
+                  <span style={{fontSize:13,fontWeight:700,fontFamily:F.m,color:p.cl}}>{p.v}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1.4fr 1fr",gap:16}}>
+          {/* Tasks */}
+          <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:18}}>
+            <SH title="My Tasks" count={tasks.length} action="+ Add Task"/>
+            {tasks.map(t=>(
+              <div key={t.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 10px",marginBottom:4,borderRadius:8,background:C.sa,border:`1px solid ${C.bd}`}}>
+                <div style={{display:"flex",alignItems:"center",gap:10,flex:1}}>
+                  <div style={{width:16,height:16,borderRadius:4,border:`2px solid ${t.priority==="Critical"?C.rd:t.priority==="High"?C.go:C.tm}`,cursor:"pointer",flexShrink:0}}/>
+                  <span style={{fontSize:12,color:C.tp}}>{t.task}</span>
+                </div>
+                <div style={{display:"flex",gap:6,alignItems:"center",flexShrink:0}}>
+                  {t.time!=="-"&&<span style={{fontSize:10,color:C.ac,fontFamily:F.m}}>{t.time}</span>}
+                  <Badge color={t.type==="Lead"?C.ac:t.type==="Service"?C.rd:t.type==="Opportunity"?C.gn:C.go}>{t.type}</Badge>
+                  <span style={{fontSize:11,color:t.due==="Today"?C.go:C.tm,fontWeight:600}}>{t.due}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* Activity Feed */}
+          <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:18}}>
+            <SH title="Recent Activity"/>
+            {[{a:"Lead LD-4821 moved to Document Collection",t:"10m ago",i:"◉",cl:C.ac},{a:"SR-7802 escalated to Credit Head",t:"25m ago",i:"⚑",cl:C.rd},{a:"Maker-Checker: Loan sanction approved by BM",t:"45m ago",i:"✓",cl:C.gn},{a:"OPP-301 proposal sent to Rajesh Sharma",t:"1h ago",i:"△",cl:C.gn},{a:"Dedup resolved: LD-4821 merged with CIF-100234",t:"2h ago",i:"⊘",cl:C.go},{a:"KYC verified for CIF-100567",t:"3h ago",i:"☉",cl:C.pu}].map((a,i)=>(
+              <div key={i} style={{display:"flex",gap:10,padding:"8px 0",borderBottom:i<5?`1px solid ${C.bd}`:"none"}}>
+                <div style={{width:30,height:30,borderRadius:8,background:`${a.cl}15`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:a.cl,flexShrink:0}}>{a.i}</div>
+                <div><div style={{fontSize:12,color:C.tp}}>{a.a}</div><div style={{fontSize:10,color:C.tm,marginTop:2}}>{a.t}</div></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </>}
+      {dashTab==="My Pipeline"&&<div>
+        <div style={{display:"flex",gap:14,marginBottom:20,flexWrap:"wrap"}}><KPI label="My Active Leads" value="28" trend={8} color={C.ac}/><KPI label="My Pipeline" value="$6.8M" trend={15} color={C.gn}/><KPI label="Conversions (MTD)" value="7" sub="Target: 10" color={C.go}/><KPI label="Avg Days to Close" value="18" trend={-12} color={C.pu}/></div>
+        <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:18}}>
+          <SH title="Opportunity Pipeline"/>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12}}>
+            {["Discovery","Qualification","Proposal","Negotiation"].map(stage=>(
+              <div key={stage} style={{background:C.sa,borderRadius:10,padding:12}}>
+                <div style={{fontSize:11,fontWeight:700,color:C.tm,marginBottom:10,textTransform:"uppercase",letterSpacing:0.8}}>{stage} ({opportunities.filter(o=>o.stage===stage).length})</div>
+                {opportunities.filter(o=>o.stage===stage).map(o=>(
+                  <div key={o.id} style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:8,padding:10,marginBottom:6}}>
+                    <div style={{fontSize:12,fontWeight:700,marginBottom:2}}>{o.customer}</div>
+                    <div style={{fontSize:11,color:C.tm}}>{o.product}</div>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:6}}>
+                      <span style={{fontFamily:F.m,fontWeight:700,fontSize:13,color:C.gn}}>{o.value}</span>
+                      <Bar value={o.probability} color={o.probability>70?C.gn:o.probability>50?C.go:C.rd}/>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>}
+      {dashTab==="Branch Performance"&&<div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:18}}>
+        <SH title="Branch-wise Performance (MTD)"/>
+        <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+          <thead><tr style={{borderBottom:`2px solid ${C.bd}`}}>
+            {["Branch","Leads","Conv","Conv%","Pipeline","SRs","NPS"].map(h=><th key={h} style={{padding:"10px 12px",textAlign:"left",fontSize:10,color:C.tm,fontWeight:600,textTransform:"uppercase",letterSpacing:0.8}}>{h}</th>)}
+          </tr></thead>
+          <tbody>
+            {[{b:"Connaught Place",l:89,c:21,p:"23.6%",pi:"$12.4M",s:8,n:78},{b:"Bandra West",l:76,c:18,p:"23.7%",pi:"$9.8M",s:12,n:71},{b:"MG Road",l:64,c:14,p:"21.9%",pi:"$8.2M",s:6,n:74},{b:"Koramangala",l:58,c:11,p:"19.0%",pi:"$6.1M",s:9,n:69},{b:"Anna Nagar",l:55,c:13,p:"23.6%",pi:"$5.7M",s:12,n:65}].map((b,i)=>(
+              <tr key={i} style={{borderBottom:`1px solid ${C.bd}`}}>
+                <td style={{padding:10,fontWeight:600}}>{b.b}</td>
+                <td style={{padding:10,fontFamily:F.m}}>{b.l}</td>
+                <td style={{padding:10,fontFamily:F.m,color:C.gn}}>{b.c}</td>
+                <td style={{padding:10}}><Badge color={parseFloat(b.p)>=23?C.gn:C.go}>{b.p}</Badge></td>
+                <td style={{padding:10,fontFamily:F.m,fontWeight:600}}>{b.pi}</td>
+                <td style={{padding:10,fontFamily:F.m,color:b.s>10?C.rd:C.tp}}>{b.s}</td>
+                <td style={{padding:10}}><Bar value={b.n} color={b.n>=70?C.gn:C.go}/></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>}
+      {dashTab==="Compliance"&&<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+        <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:18}}>
+          <SH title="KYC Status Overview"/>
+          {[{s:"Verified",c:4521,p:87,cl:C.gn},{s:"Pending Re-verification",c:412,p:8,cl:C.go},{s:"Expired",c:167,p:3,cl:C.rd},{s:"Not Done",c:98,p:2,cl:C.tm}].map((k,i)=>(
+            <div key={i} style={{display:"flex",alignItems:"center",gap:12,marginBottom:10}}>
+              <Dot color={k.cl}/><span style={{width:140,fontSize:12}}>{k.s}</span><div style={{flex:1}}><Bar value={k.p} color={k.cl}/></div><span style={{fontSize:12,fontFamily:F.m,fontWeight:600,width:50,textAlign:"right"}}>{k.c}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:18}}>
+          <SH title="Regulatory Alerts"/>
+          {[{a:"CERSAI registration pending for 12 loans",sv:"High",d:"May 20"},{a:"AML screening overdue for 5 accounts",sv:"Critical",d:"Immediate"},{a:"FATCA declaration missing for 23 NRIs",sv:"Medium",d:"May 31"},{a:"Maker-Checker: 3 approvals pending review",sv:"High",d:"Today"}].map((a,i)=>(
+            <div key={i} style={{padding:10,marginBottom:6,borderRadius:8,background:a.sv==="Critical"?C.rdd:a.sv==="High"?C.gd:C.sa,border:`1px solid ${a.sv==="Critical"?C.rd+"30":C.bd}`}}>
+              <div style={{fontSize:12,fontWeight:600,marginBottom:4}}>{a.a}</div>
+              <div style={{display:"flex",justifyContent:"space-between"}}><Badge color={a.sv==="Critical"?C.rd:a.sv==="High"?C.go:C.tm}>{a.sv}</Badge><span style={{fontSize:11,color:C.tm}}>Due: {a.d}</span></div>
+            </div>
+          ))}
+        </div>
+      </div>}
+    </div>}
+
+    {/* ========== LEADS ========== */}
+    {mod==="Leads"&&<div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+        <div style={{display:"flex",gap:6}}>
+          {["All","Hot","Warm","Cold"].map(f=><button key={f} onClick={()=>setLeadFilter(f)} style={{padding:"5px 14px",borderRadius:20,border:`1px solid ${C.bd}`,background:leadFilter===f?C.ac:"transparent",color:leadFilter===f?"#fff":C.ts,cursor:"pointer",fontSize:12,fontWeight:600,fontFamily:F.d}}>{f}</button>)}
+        </div>
+        <div style={{display:"flex",gap:8}}>
+          {selectedLeads.length>0&&<Btn color={C.pu} onClick={()=>setShowBulkAction(true)}>⚡ Bulk Actions ({selectedLeads.length})</Btn>}
+          <Btn primary onClick={()=>{setLeadForm({name:"",phone:"",email:"",product:"Home Loan",source:"Website",amount:""});setShowCreateLead(true)}}>+ New Lead</Btn>
+          <Btn>⇅ Import</Btn><Btn>⇣ Export</Btn>
+        </div>
+      </div>
+      <div style={{display:"flex",gap:14,marginBottom:16,flexWrap:"wrap"}}>
+        <KPI label="Total Leads" value={leads.length.toString()} color={C.ac}/><KPI label="Hot Leads" value={leads.filter(l=>l.status==="Hot").length.toString()} color={C.rd}/><KPI label="Avg Lead Score" value="73" color={C.go}/><KPI label="Pending Follow-ups" value="12" color={C.pu}/>
+      </div>
+      <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,overflow:"hidden"}}>
+        <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+          <thead><tr style={{borderBottom:`2px solid ${C.bd}`}}>
+            <th style={{padding:"10px",width:30}}><input type="checkbox" onChange={e=>setSelectedLeads(e.target.checked?leads.map(l=>l.id):[])}/></th>
+            {["ID","Name","Product","Amount","Source","Bureau","Score","Status","Stage","Actions"].map(h=><th key={h} style={{padding:"10px 10px",textAlign:"left",fontSize:10,color:C.tm,fontWeight:600,textTransform:"uppercase",letterSpacing:0.8}}>{h}</th>)}
+          </tr></thead>
+          <tbody>{leads.filter(l=>leadFilter==="All"||l.status===leadFilter).map(l=>(
+            <tr key={l.id} style={{borderBottom:`1px solid ${C.bd}`,cursor:"pointer"}} onMouseEnter={e=>e.currentTarget.style.background=C.sa} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+              <td style={{padding:10}} onClick={e=>e.stopPropagation()}><input type="checkbox" checked={selectedLeads.includes(l.id)} onChange={()=>toggleLead(l.id)}/></td>
+              <td style={{padding:10,fontFamily:F.m,color:C.ac,fontSize:11}} onClick={()=>setLeadDetail(l)}>{l.id}</td>
+              <td style={{padding:10,fontWeight:600}} onClick={()=>setLeadDetail(l)}>{l.name}</td>
+              <td style={{padding:10,color:C.ts}} onClick={()=>setLeadDetail(l)}>{l.product}</td>
+              <td style={{padding:10,fontFamily:F.m,fontWeight:600}} onClick={()=>setLeadDetail(l)}>{l.amount}</td>
+              <td style={{padding:10}} onClick={()=>setLeadDetail(l)}><Badge color={C.tm}>{l.source}</Badge></td>
+              <td style={{padding:10}} onClick={()=>setLeadDetail(l)}><span style={{fontFamily:F.m,fontWeight:700,fontSize:12,color:dataMasked?C.tm:l.bureau.score>=750?C.gn:l.bureau.score>=700?C.go:C.rd}}>{dataMasked?mask(l.bureau.score,"bureau"):l.bureau.score}</span></td>
+              <td style={{padding:10}} onClick={()=>setLeadDetail(l)}><div style={{display:"flex",alignItems:"center",gap:4}}><Bar value={l.score} color={l.score>80?C.gn:l.score>60?C.go:C.rd}/><span style={{fontSize:11,fontFamily:F.m,fontWeight:600}}>{l.score}</span></div></td>
+              <td style={{padding:10}} onClick={()=>setLeadDetail(l)}><Badge color={l.status==="Hot"?C.rd:l.status==="Warm"?C.go:C.tm}>{l.status}</Badge></td>
+              <td style={{padding:10,fontSize:11,color:C.ts}} onClick={()=>setLeadDetail(l)}>{l.stage}</td>
+              <td style={{padding:10}} onClick={e=>e.stopPropagation()}>
+                <div style={{display:"flex",gap:4}}>
+                  <button onClick={()=>{setCommForm({channel:"Email",to:l.email,subject:`Regarding your ${l.product} application`,body:""});setShowQuickComm(true)}} style={{background:C.ad,border:"none",color:C.ac,padding:"3px 8px",borderRadius:5,fontSize:10,cursor:"pointer",fontWeight:600}} title="Quick Email">✉</button>
+                  <button onClick={()=>{setCommForm({channel:"SMS",to:l.phone,subject:"",body:""});setShowQuickComm(true)}} style={{background:C.gnd,border:"none",color:C.gn,padding:"3px 8px",borderRadius:5,fontSize:10,cursor:"pointer",fontWeight:600}} title="Quick SMS">💬</button>
+                  <button onClick={()=>{setShowLogInteraction(true)}} style={{background:C.pd,border:"none",color:C.pu,padding:"3px 8px",borderRadius:5,fontSize:10,cursor:"pointer",fontWeight:600}} title="Log Interaction">📋</button>
+                  <button style={{background:C.ad,border:"none",color:C.ac,padding:"3px 8px",borderRadius:5,fontSize:10,cursor:"pointer",fontWeight:600}}>Convert</button>
+                </div>
+              </td>
+            </tr>
+          ))}</tbody>
+        </table>
+      </div>
+
+      {/* LEAD DETAIL SLIDER */}
+      {leadDetail&&<div style={{position:"fixed",top:0,right:0,bottom:0,width:520,zIndex:200,background:C.sf,borderLeft:`1px solid ${C.bd}`,boxShadow:"-8px 0 40px rgba(0,0,0,0.1)",overflowY:"auto",padding:24}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16}}>
+          <div><div style={{fontSize:11,color:C.ac,fontFamily:F.m,marginBottom:4}}>{leadDetail.id}</div><h3 style={{margin:0,fontSize:20,fontWeight:800}}>{leadDetail.name}</h3></div>
+          <button onClick={()=>setLeadDetail(null)} style={{background:"none",border:"none",color:C.tm,fontSize:22,cursor:"pointer"}}>×</button>
+        </div>
+
+        {/* Dedup Warning */}
+        {customers.some(c=>c.name===leadDetail.name)&&<div style={{padding:10,borderRadius:8,background:"#FEF3C7",border:"1px solid #F59E0B40",marginBottom:14,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div><span style={{fontSize:12,fontWeight:700,color:"#92400E"}}>⚠ Duplicate Detected</span><div style={{fontSize:11,color:"#92400E",marginTop:2}}>Existing customer found: {customers.find(c=>c.name===leadDetail.name)?.id}</div></div>
+          <Btn small color={C.go} onClick={()=>setShowDedupe(true)}>Resolve</Btn>
+        </div>}
+
+        {/* Score & Status Row */}
+        <div style={{display:"flex",gap:12,marginBottom:16}}>
+          <div style={{background:C.sa,borderRadius:10,padding:12,flex:1,textAlign:"center",border:`1px solid ${C.bd}`}}>
+            <div style={{fontSize:32,fontWeight:800,fontFamily:F.m,color:leadDetail.score>80?C.gn:C.go}}>{leadDetail.score}</div>
+            <div style={{fontSize:10,color:C.tm}}>LEAD SCORE</div>
+          </div>
+          <div style={{background:C.sa,borderRadius:10,padding:12,flex:1,textAlign:"center",border:`1px solid ${C.bd}`}}>
+            <div style={{fontSize:18,fontWeight:800,fontFamily:F.m,color:dataMasked?C.tm:leadDetail.bureau.score>=750?C.gn:C.go}}>{dataMasked?mask(leadDetail.bureau.score,"bureau"):leadDetail.bureau.score}</div>
+            <div style={{fontSize:10,color:C.tm}}>BUREAU ({leadDetail.bureau.agency})</div>
+            <Badge color={leadDetail.bureau.status==="Excellent"?C.gn:leadDetail.bureau.status==="Good"?C.gn:C.go}>{leadDetail.bureau.status}</Badge>
+          </div>
+          <div style={{background:C.sa,borderRadius:10,padding:12,flex:1,textAlign:"center",border:`1px solid ${C.bd}`}}>
+            <Badge color={leadDetail.status==="Hot"?C.rd:leadDetail.status==="Warm"?C.go:C.tm}>{leadDetail.status}</Badge>
+            <div style={{fontSize:10,color:C.tm,marginTop:6}}>STATUS</div>
+          </div>
+        </div>
+
+        {/* Contact Actions */}
+        <div style={{display:"flex",gap:8,marginBottom:16}}>
+          <Btn small primary color={C.gn} onClick={()=>{setCommForm({channel:"Phone",to:leadDetail.phone,subject:"",body:""});setShowQuickComm(true)}}>📞 Call {mask(leadDetail.phone,"phone")}</Btn>
+          <Btn small onClick={()=>{setCommForm({channel:"Email",to:leadDetail.email,subject:`Re: ${leadDetail.product}`,body:""});setShowQuickComm(true)}}>✉ Email</Btn>
+          <Btn small onClick={()=>{setCommForm({channel:"WhatsApp",to:leadDetail.phone,subject:"",body:""});setShowQuickComm(true)}}>💬 WhatsApp</Btn>
+        </div>
+
+        {/* Details */}
+        <div style={{background:C.sa,borderRadius:10,padding:14,marginBottom:14,border:`1px solid ${C.bd}`}}>
+          <div style={{fontSize:11,fontWeight:700,color:C.tm,marginBottom:10,textTransform:"uppercase",letterSpacing:0.8}}>Lead Details</div>
+          {[["Product",leadDetail.product],["Amount",mask(leadDetail.amount,"amount")],["Source",leadDetail.source],["Stage",leadDetail.stage],["Branch",leadDetail.branch],["RM",leadDetail.rm],["Phone",mask(leadDetail.phone,"phone")],["Email",mask(leadDetail.email,"email")],["Created",leadDetail.date]].map(([k,v],i)=>(
+            <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:i<8?`1px solid ${C.bd}`:"none"}}>
+              <span style={{fontSize:11,color:C.tm}}>{k}</span><span style={{fontSize:12,fontWeight:600}}>{v}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Document Checklist */}
+        <div style={{background:C.sa,borderRadius:10,padding:14,marginBottom:14,border:`1px solid ${C.bd}`}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+            <div style={{fontSize:11,fontWeight:700,color:C.tm,textTransform:"uppercase",letterSpacing:0.8}}>Document Checklist</div>
+            <Btn small color={C.ac} onClick={()=>setShowDocUpload(true)}>+ Upload</Btn>
+          </div>
+          {[{doc:"ID Proof",status:"Received",icon:"✓"},{doc:"Address Proof",status:"Received",icon:"✓"},{doc:"Income Proof",status:"Pending",icon:"○"},{doc:"Bank Statements (6 mo)",status:"Pending",icon:"○"},{doc:"Property Documents",status:"Not Applicable",icon:"—"},{doc:"ITR (2 years)",status:"Received",icon:"✓"}].map((d,i)=>(
+            <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"6px 0",borderBottom:i<5?`1px solid ${C.bd}`:"none"}}>
+              <div style={{display:"flex",alignItems:"center",gap:8}}>
+                <span style={{color:d.status==="Received"?C.gn:d.status==="Pending"?C.go:C.tm,fontWeight:700}}>{d.icon}</span>
+                <span style={{fontSize:12}}>{d.doc}</span>
+              </div>
+              <Badge color={d.status==="Received"?C.gn:d.status==="Pending"?C.go:C.tm}>{d.status}</Badge>
+            </div>
+          ))}
+        </div>
+
+        {/* Lead Journey */}
+        <div style={{background:C.sa,borderRadius:10,padding:14,marginBottom:14,border:`1px solid ${C.bd}`}}>
+          <div style={{fontSize:11,fontWeight:700,color:C.tm,marginBottom:10,textTransform:"uppercase",letterSpacing:0.8}}>Lead Journey</div>
+          {[{s:"Lead Created",d:"May 12",done:true},{s:"Initial Contact",d:"May 13",done:true},{s:"Qualification",d:"May 14",done:true},{s:"Document Collection",d:"May 15",done:true},{s:"Credit Assessment",d:"-",done:false},{s:"Sanction & Disbursement",d:"-",done:false}].map((s,i)=>(
+            <div key={i} style={{display:"flex",gap:10,alignItems:"flex-start"}}>
+              <div style={{display:"flex",flexDirection:"column",alignItems:"center"}}>
+                <div style={{width:12,height:12,borderRadius:"50%",background:s.done?C.gn:C.bd,border:`2px solid ${s.done?C.gn:C.tm}`}}/>
+                {i<5&&<div style={{width:2,height:20,background:s.done?C.gn+"40":C.bd}}/>}
+              </div>
+              <div style={{paddingBottom:8}}><div style={{fontSize:12,fontWeight:600,color:s.done?C.tp:C.tm}}>{s.s}</div><div style={{fontSize:10,color:C.tm}}>{s.d}</div></div>
+            </div>
+          ))}
+        </div>
+
+        {/* Quick Actions */}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+          <Btn primary full>Convert to Customer</Btn>
+          <Btn full onClick={()=>setShowLogInteraction(true)}>📋 Log Interaction</Btn>
+          <Btn full>📅 Schedule Follow-up</Btn>
+          <Btn full onClick={()=>setShowNPS(true)}>⭐ Collect Feedback</Btn>
+          <Btn full>🔄 Reassign Lead</Btn>
+          <Btn full onClick={()=>setShowEligibility(true)}>🏦 Check Eligibility</Btn>
+        </div>
+      </div>}
+    </div>}
+
+    {/* ========== CUSTOMERS ========== */}
+    {mod==="Customers"&&<div>
+      {!custDetail?<>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+          <div style={{display:"flex",gap:6}}>{["All","Conventional","Islamic"].map(f=><button key={f} onClick={()=>setCustType(f)} style={{padding:"5px 14px",borderRadius:20,border:`1px solid ${f==="Islamic"?C.is:C.bd}`,background:custType===f?(f==="Islamic"?C.is:C.ac):"transparent",color:custType===f?"#fff":C.ts,cursor:"pointer",fontSize:12,fontWeight:600,fontFamily:F.d}}>{f==="Islamic"?"☪ Islamic":f}</button>)}</div>
+          <Btn onClick={()=>setShowNPS(true)}>⭐ NPS Survey</Btn>
+        </div>
+        <div style={{display:"flex",gap:14,marginBottom:16,flexWrap:"wrap"}}><KPI label="Total Customers" value="5,198" color={C.ac}/><KPI label="HNI" value="342" color={C.go}/><KPI label="Islamic Banking" value="1,247" color={C.is}/><KPI label="Products/Customer" value="3.2" color={C.gn}/><KPI label="Dormant" value="187" color={C.rd}/></div>
+        <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,overflow:"hidden"}}>
+          <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+            <thead><tr style={{borderBottom:`2px solid ${C.bd}`}}>
+              {["CIF","Name","Type","Segment","Banking","Products","Rel. Value","AI Health","KYC","Actions"].map(h=><th key={h} style={{padding:"10px",textAlign:"left",fontSize:10,color:C.tm,fontWeight:600,textTransform:"uppercase",letterSpacing:0.8}}>{h}</th>)}
+            </tr></thead>
+            <tbody>{customers.filter(c=>custType==="All"||c.banking===custType).map(c=>(
+              <tr key={c.id} style={{borderBottom:`1px solid ${C.bd}`,cursor:"pointer"}} onMouseEnter={e=>e.currentTarget.style.background=C.sa} onMouseLeave={e=>e.currentTarget.style.background="transparent"} onClick={()=>{setCustDetail(c);setC360Tab("Overview")}}>
+                <td style={{padding:10,fontFamily:F.m,color:C.ac,fontSize:11}}>{c.id}</td>
+                <td style={{padding:10,fontWeight:600}}>{c.name}</td>
+                <td style={{padding:10}}><Badge color={c.type==="Corporate"?C.pu:C.ac}>{c.type}</Badge></td>
+                <td style={{padding:10}}><Badge color={c.segment==="HNI"?C.go:C.gn}>{c.segment}</Badge></td>
+                <td style={{padding:10}}><Badge color={c.banking==="Islamic"?C.is:C.tm}>{c.banking==="Islamic"?"☪ Islamic":"Conv."}</Badge></td>
+                <td style={{padding:10}}>{c.products.length}</td>
+                <td style={{padding:10,fontFamily:F.m,fontWeight:700,color:C.gn}}>{mask(c.totalRelValue,"amount")}</td>
+                <td style={{padding:10}}><div style={{display:"flex",alignItems:"center",gap:4}}><Bar value={c.ai.healthScore} color={c.ai.healthScore>80?C.gn:C.go}/><span style={{fontSize:11,fontFamily:F.m,fontWeight:600}}>{c.ai.healthScore}</span></div></td>
+                <td style={{padding:10}}><Badge color={c.kycStatus==="Verified"?C.gn:C.rd}>{c.kycStatus}</Badge></td>
+                <td style={{padding:10}} onClick={e=>e.stopPropagation()}>
+                  <div style={{display:"flex",gap:4}}>
+                    <Btn small color={C.ac} onClick={()=>{setCustDetail(c);setC360Tab("Overview")}}>360°</Btn>
+                    <button onClick={()=>{setShowLogInteraction(true)}} style={{background:C.pd,border:"none",color:C.pu,padding:"3px 8px",borderRadius:5,fontSize:10,cursor:"pointer"}}>📋</button>
+                  </div>
+                </td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+      </>:
+      /* CUSTOMER 360 */
+      <div>
+        <Btn onClick={()=>setCustDetail(null)}>← Back to List</Btn>
+        <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:20,marginTop:14,marginBottom:16}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div style={{display:"flex",gap:14,alignItems:"center"}}>
+              <div style={{width:54,height:54,borderRadius:14,background:custDetail.banking==="Islamic"?"linear-gradient(135deg,#00897B,#004D40)":`linear-gradient(135deg,${C.ac},${C.pu})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,fontWeight:800,color:"#fff"}}>{custDetail.name[0]}</div>
+              <div>
+                <h2 style={{margin:0,fontSize:22,fontWeight:800}}>{custDetail.name}</h2>
+                <div style={{display:"flex",gap:6,marginTop:4,flexWrap:"wrap"}}>
+                  <Badge color={C.ac}>{custDetail.id}</Badge><Badge color={custDetail.type==="Corporate"?C.pu:C.ac}>{custDetail.type}</Badge><Badge color={C.go}>{custDetail.segment}</Badge>
+                  <Badge color={custDetail.banking==="Islamic"?C.is:C.tm}>{custDetail.banking==="Islamic"?"☪ Islamic":"Conventional"}</Badge>
+                  {custDetail.banking==="Islamic"&&<Badge color={C.gn}>✓ Sharia Compliant</Badge>}
+                </div>
+              </div>
+            </div>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontSize:10,color:C.tm,textTransform:"uppercase",letterSpacing:1}}>Total Relationship Value</div>
+              <div style={{fontSize:28,fontWeight:800,fontFamily:F.m,color:C.gn}}>{mask(custDetail.totalRelValue,"amount")}</div>
+              <div style={{display:"flex",gap:8,justifyContent:"flex-end",marginTop:2}}><span style={{fontSize:10,color:C.tm}}>Since {custDetail.since}</span><span style={{fontSize:10,color:C.tm}}>NPS: <b style={{color:custDetail.nps>=8?C.gn:C.go}}>{custDetail.nps}</b></span></div>
+            </div>
+          </div>
+          {/* AI Strip */}
+          <div style={{marginTop:14,padding:"10px 14px",borderRadius:10,background:`linear-gradient(90deg,${C.ad},${C.pd})`,border:`1px solid ${C.bd}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div style={{display:"flex",alignItems:"center",gap:8}}><span style={{fontSize:13}}>🤖</span><span style={{fontSize:11,fontWeight:700,color:C.ac}}>AI INSIGHT</span></div>
+            <div style={{display:"flex",gap:20}}>
+              {[{l:"Health",v:custDetail.ai.healthScore,cl:custDetail.ai.healthScore>80?C.gn:C.go},{l:"Churn",v:`${custDetail.ai.churnRisk}%`,cl:custDetail.ai.churnRisk<15?C.gn:C.rd},{l:"CLV",v:mask(custDetail.ai.clv,"amount"),cl:C.ac},{l:"Sentiment",v:custDetail.ai.sentiment,cl:custDetail.ai.sentiment.includes("Positive")?C.gn:C.go},{l:"Anomalies",v:custDetail.ai.anomalies,cl:custDetail.ai.anomalies>0?C.rd:C.gn}].map((m,i)=>(
+                <div key={i} style={{textAlign:"center"}}><div style={{fontSize:9,color:C.tm,textTransform:"uppercase",letterSpacing:0.5}}>{m.l}</div><div style={{fontSize:14,fontWeight:800,fontFamily:F.m,color:m.cl,marginTop:1}}>{m.v}</div></div>
+              ))}
+            </div>
+          </div>
+          {/* Quick Action Buttons */}
+          <div style={{display:"flex",gap:8,marginTop:14}}>
+            <Btn small primary onClick={()=>setShowLogInteraction(true)}>📋 Log Interaction</Btn>
+            <Btn small onClick={()=>{setCommForm({channel:"Email",to:"",subject:"",body:""});setShowQuickComm(true)}}>✉ Send Email</Btn>
+            <Btn small onClick={()=>{setCommForm({channel:"SMS",to:"",subject:"",body:""});setShowQuickComm(true)}}>💬 SMS</Btn>
+            <Btn small onClick={()=>{setSrForm({customer:custDetail.name,category:"Account",priority:"Medium",issue:""});setShowCreateSR(true)}}>⚑ Create SR</Btn>
+            <Btn small onClick={()=>setShowDocUpload(true)}>📄 Upload Doc</Btn>
+            <Btn small onClick={()=>setShowNPS(true)}>⭐ NPS Survey</Btn>
+            <Btn small onClick={()=>setShowEligibility(true)}>🏦 Eligibility</Btn>
+          </div>
+        </div>
+
+        <Tabs tabs={custDetail.banking==="Islamic"?["Overview","AI Analytics","Islamic Finance","Documents","Interactions","Family"]:["Overview","AI Analytics","Documents","Interactions","Family"]} active={c360Tab} onSelect={setC360Tab}/>
+
+        {/* TAB: Overview */}
+        {c360Tab==="Overview"&&<div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:14,marginBottom:16}}>
+            <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+              <SH title="Products & Balances" count={custDetail.products.length}/>
+              {custDetail.products.map((p,i)=>{const bk=Object.keys(custDetail.balances);return(
+                <div key={i} style={{padding:"8px 10px",marginBottom:4,borderRadius:8,background:C.sa,border:`1px solid ${C.bd}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8}}><div style={{width:8,height:8,borderRadius:3,background:[C.ac,C.gn,C.go,C.pu][i%4]}}/><span style={{fontSize:12,fontWeight:600}}>{p}</span></div>
+                  <span style={{fontSize:12,fontFamily:F.m,fontWeight:700}}>{mask(custDetail.balances[bk[i]]||"-","balance")}</span>
+                </div>
+              )})}
+            </div>
+            <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+              <SH title="Profile & Compliance"/>
+              {[["ID/PAN",mask(custDetail.pan,"pan")],["DOB/Estd.",custDetail.dob],["Risk",custDetail.riskProfile],["KYC",custDetail.kycStatus],["Banking",custDetail.banking],["Last Contact",custDetail.lastInteraction],["RM",custDetail.rm],["Branch",custDetail.branch]].map(([k,v],i)=>(
+                <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:i<7?`1px solid ${C.bd}`:"none"}}><span style={{fontSize:11,color:C.tm}}>{k}</span><span style={{fontSize:12,fontWeight:600}}>{v}</span></div>
+              ))}
+            </div>
+            <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+              <SH title="Channel Preferences"/>
+              <div style={{fontSize:10,color:C.ac,fontWeight:600,marginBottom:10}}>🤖 AI-analyzed from transactions</div>
+              {Object.entries(custDetail.channels).map(([ch,pct],i)=>(
+                <div key={i} style={{marginBottom:8}}>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:11,color:C.ts,textTransform:"capitalize"}}>{ch.replace(/([A-Z])/g," $1")}</span><span style={{fontSize:11,fontFamily:F.m,fontWeight:600}}>{pct}%</span></div>
+                  <div style={{width:"100%",height:6,borderRadius:3,background:`${C.ac}15`}}><div style={{width:`${pct}%`,height:"100%",borderRadius:3,background:`linear-gradient(90deg,${C.ac},${C.pu})`}}/></div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+            <SH title="🤖 AI-Powered Next Best Actions"/>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
+              {Object.entries(custDetail.ai.propensity).map(([key,score],i)=>{
+                const labels={wealth:"Wealth Mgmt",topUp:"Loan Top-Up",card:"Card Upgrade",insurance:"Insurance",lc:"LC/BG Facility",fx:"FX Hedging",payroll:"Payroll Solution",sukuk:"Sukuk Investment",musharakah:"Musharakah Venture",takafulPlus:"Takaful Upgrade",wakala:"Wakala Deposit",sukukInvest:"Sukuk Portfolio",ijaraEquip:"Ijara Equipment",fxHedge:"Sharia FX Hedge"};
+                const cls=[C.go,C.gn,C.pu,C.ac];
+                return(<div key={key} style={{background:C.sa,border:`1px solid ${C.bd}`,borderRadius:10,padding:12,borderTop:`3px solid ${cls[i%4]}`}}>
+                  <div style={{fontSize:12,fontWeight:700,marginBottom:4}}>{labels[key]||key}</div>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:6}}><Bar value={score} color={cls[i%4]}/><span style={{fontSize:12,fontFamily:F.m,fontWeight:700,color:cls[i%4]}}>{score}%</span></div>
+                </div>);
+              })}
+            </div>
+          </div>
+        </div>}
+
+        {/* TAB: AI Analytics */}
+        {c360Tab==="AI Analytics"&&<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+          <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+            <SH title="🤖 Health Scorecard"/>
+            <div style={{display:"flex",justifyContent:"center",margin:"14px 0"}}>
+              <div style={{width:110,height:110,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:`conic-gradient(${custDetail.ai.healthScore>80?C.gn:C.go} ${custDetail.ai.healthScore*3.6}deg,${C.sa} 0deg)`}}>
+                <div style={{width:88,height:88,borderRadius:"50%",background:C.sf,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
+                  <span style={{fontSize:30,fontWeight:800,fontFamily:F.m,color:custDetail.ai.healthScore>80?C.gn:C.go}}>{custDetail.ai.healthScore}</span>
+                </div>
+              </div>
+            </div>
+            {[{f:"Product Engagement",s:85},{f:"Transaction Recency",s:92},{f:"Service Satisfaction",s:78},{f:"Digital Adoption",s:70},{f:"Profitability Index",s:88}].map((f,i)=>(
+              <div key={i} style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
+                <span style={{width:125,fontSize:11,color:C.ts}}>{f.f}</span><div style={{flex:1}}><Bar value={f.s} color={f.s>80?C.gn:C.go}/></div><span style={{fontSize:11,fontFamily:F.m,fontWeight:600,width:24}}>{f.s}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+            <SH title="🤖 Predictive Models"/>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}}>
+              <div style={{background:custDetail.ai.churnRisk<15?C.gnd:C.rdd,borderRadius:10,padding:14,textAlign:"center",border:`1px solid ${C.bd}`}}>
+                <div style={{fontSize:10,color:C.tm,textTransform:"uppercase"}}>Churn Risk</div>
+                <div style={{fontSize:32,fontWeight:800,fontFamily:F.m,color:custDetail.ai.churnRisk<15?C.gn:C.rd}}>{custDetail.ai.churnRisk}%</div>
+                <div style={{fontSize:10,color:C.tm}}>Next 90 days</div>
+              </div>
+              <div style={{background:C.ad,borderRadius:10,padding:14,textAlign:"center",border:`1px solid ${C.bd}`}}>
+                <div style={{fontSize:10,color:C.tm,textTransform:"uppercase"}}>Lifetime Value</div>
+                <div style={{fontSize:32,fontWeight:800,fontFamily:F.m,color:C.ac}}>{mask(custDetail.ai.clv,"amount")}</div>
+                <div style={{fontSize:10,color:C.tm}}>5-year projection</div>
+              </div>
+            </div>
+            <div style={{fontSize:11,fontWeight:700,color:C.tm,marginBottom:8,textTransform:"uppercase"}}>Spending Pattern</div>
+            {Object.entries(custDetail.spending).map(([cat,pct],i)=>{const cls=[C.ac,C.go,C.gn,C.pu,"#F97316",C.tm];return(
+              <div key={i} style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
+                <span style={{width:72,fontSize:11,color:C.ts,textTransform:"capitalize"}}>{cat}</span>
+                <div style={{flex:1,height:16,background:`${cls[i]}12`,borderRadius:4,overflow:"hidden"}}><div style={{width:`${pct}%`,height:"100%",borderRadius:4,background:cls[i]}}/></div>
+                <span style={{fontSize:11,fontFamily:F.m,fontWeight:600,width:28}}>{pct}%</span>
+              </div>
+            )})}
+          </div>
+        </div>}
+
+        {/* TAB: Islamic Finance */}
+        {c360Tab==="Islamic Finance"&&custDetail.islamic&&<div>
+          <div style={{background:"linear-gradient(135deg,#E0F2F1,#B2DFDB)",border:"1px solid #80CBC4",borderRadius:12,padding:18,marginBottom:16}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div><div style={{fontSize:16,fontWeight:800,color:"#004D40"}}>☪ Sharia Compliance Status</div><div style={{fontSize:12,color:"#00695C",marginTop:3}}>Advisor: {custDetail.islamic.shariaAdvisor}</div></div>
+              <div style={{padding:"6px 18px",borderRadius:20,background:"#00897B",color:"#fff",fontWeight:700,fontSize:13}}>✓ {custDetail.islamic.shariaCompliance}</div>
+            </div>
+            <div style={{display:"flex",gap:6,marginTop:10}}>{custDetail.islamic.preferredStructures.map(s=><Badge key={s} color="#00695C" bg="#B2DFDB">{s}</Badge>)}</div>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+            <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+              <SH title="Active Islamic Contracts" count={custDetail.islamic.contracts.length}/>
+              {custDetail.islamic.contracts.map((c,i)=>(
+                <div key={i} style={{background:C.sa,border:`1px solid ${C.bd}`,borderRadius:10,padding:12,marginBottom:8,borderLeft:"4px solid #00897B"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{fontSize:13,fontWeight:700}}>{c.type}</span><Badge color="#00897B">✓ {c.shariaApproval}</Badge></div>
+                  <div style={{fontSize:10,fontFamily:F.m,color:C.tm,marginBottom:6}}>Ref: {c.ref}</div>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:10}}>
+                    {c.value&&<div><span style={{fontSize:10,color:C.tm}}>Value: </span><span style={{fontSize:12,fontWeight:700,fontFamily:F.m}}>{c.value}</span></div>}
+                    {c.margin&&<div><span style={{fontSize:10,color:C.tm}}>Margin: </span><span style={{fontSize:12,fontWeight:700,color:"#00897B"}}>{c.margin}</span></div>}
+                    {c.profitRatio&&<div><span style={{fontSize:10,color:C.tm}}>Ratio: </span><span style={{fontSize:12,fontWeight:700,color:"#00897B"}}>{c.profitRatio}</span></div>}
+                    {c.rental&&<div><span style={{fontSize:10,color:C.tm}}>Rental: </span><span style={{fontSize:12,fontWeight:700}}>{c.rental}</span></div>}
+                    {c.bankShare&&<div><span style={{fontSize:10,color:C.tm}}>Bank Share: </span><span style={{fontSize:12,fontWeight:700}}>{c.bankShare}</span></div>}
+                    {c.coverage&&<div><span style={{fontSize:10,color:C.tm}}>Coverage: </span><span style={{fontSize:12,fontWeight:700}}>{c.coverage}</span></div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+              <SH title="Profit Distribution"/>
+              {custDetail.islamic.profitDistribution.map((pd,i)=>(
+                <div key={i} style={{background:C.sa,border:`1px solid ${C.bd}`,borderRadius:10,padding:12,marginBottom:8}}>
+                  <div style={{fontSize:12,fontWeight:700,marginBottom:3}}>{pd.product}</div>
+                  <div style={{fontSize:11,color:"#00897B",fontWeight:600,marginBottom:4}}>{pd.mechanism}</div>
+                  <div style={{display:"flex",gap:14}}>
+                    {pd.lastPayout&&<div><span style={{fontSize:10,color:C.tm}}>Payout: </span><span style={{fontSize:12,fontWeight:700,fontFamily:F.m}}>{pd.lastPayout}</span></div>}
+                    {pd.monthlyPayment&&<div><span style={{fontSize:10,color:C.tm}}>Monthly: </span><span style={{fontSize:12,fontWeight:700,fontFamily:F.m}}>{pd.monthlyPayment}</span></div>}
+                    {pd.freq&&<div><span style={{fontSize:10,color:C.tm}}>Freq: </span><span style={{fontSize:11}}>{pd.freq}</span></div>}
+                    {pd.remaining&&<div><span style={{fontSize:10,color:C.tm}}>Remaining: </span><span style={{fontSize:11}}>{pd.remaining}</span></div>}
+                  </div>
+                </div>
+              ))}
+              <div style={{marginTop:14,padding:14,borderRadius:10,background:"linear-gradient(135deg,#FFF8E1,#FFECB3)",border:"1px solid #FFD54F"}}>
+                <div style={{fontSize:13,fontWeight:800,color:"#E65100",marginBottom:8}}>Zakat Calculation (2.5%)</div>
+                {[["Eligible Assets",custDetail.islamic.zakatCalc.totalEligible],["Zakat Due",custDetail.islamic.zakatCalc.zakatDue],["Last Paid",custDetail.islamic.zakatCalc.lastPaid],["Status",custDetail.islamic.zakatCalc.status]].map(([k,v],i)=>(
+                  <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:i<3?"1px solid #FFD54F50":"none"}}><span style={{fontSize:11,color:"#BF360C"}}>{k}</span><span style={{fontSize:12,fontWeight:700,fontFamily:F.m,color:"#E65100"}}>{v}</span></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>}
+
+        {/* TAB: Documents */}
+        {c360Tab==="Documents"&&<div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+          <SH title="Document Vault" count={custDetail.docs?.length||0} action="+ Upload Document" onAction={()=>setShowDocUpload(true)}/>
+          <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+            <thead><tr style={{borderBottom:`2px solid ${C.bd}`}}>{["Document","Status","Date","Actions"].map(h=><th key={h} style={{padding:"8px 10px",textAlign:"left",fontSize:10,color:C.tm,fontWeight:600,textTransform:"uppercase"}}>{h}</th>)}</tr></thead>
+            <tbody>{(custDetail.docs||[]).map((d,i)=>(
+              <tr key={i} style={{borderBottom:`1px solid ${C.bd}`}}>
+                <td style={{padding:"10px",fontWeight:600}}>{d.name}</td>
+                <td style={{padding:10}}><Badge color={d.status==="Verified"?C.gn:d.status==="Received"?C.ac:d.status==="Pending Renewal"?C.go:C.rd}>{d.status}</Badge></td>
+                <td style={{padding:10,fontSize:11,color:C.tm}}>{d.date}</td>
+                <td style={{padding:10}}><div style={{display:"flex",gap:4}}><Btn small color={C.ac}>View</Btn><Btn small>Replace</Btn>{d.status!=="Verified"&&<Btn small color={C.gn}>Verify</Btn>}</div></td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>}
+
+        {/* TAB: Interactions */}
+        {c360Tab==="Interactions"&&<div style={{display:"grid",gridTemplateColumns:"1.5fr 1fr",gap:14}}>
+          <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+            <SH title="Interaction Timeline" action="+ Log Interaction" onAction={()=>setShowLogInteraction(true)}/>
+            {[{type:"Call",note:"Discussed portfolio review",date:"May 16, 2:30 PM",by:custDetail.rm,dur:"12 min",sent:"Positive"},{type:"Email",note:"Sent maturity/renewal reminder",date:"May 14, 10:00 AM",by:"System",dur:"-",sent:"Neutral"},{type:"Branch Visit",note:"Document submission",date:"May 10, 11:45 AM",by:"Teller",dur:"8 min",sent:"Positive"},{type:"WhatsApp",note:"Statement download query",date:"May 08, 6:15 PM",by:"Bot + RM",dur:"3 min",sent:"Neutral"},{type:"SMS",note:"Transaction alert + promo",date:"May 05, 9:00 AM",by:"Auto",dur:"-",sent:"N/A"}].map((int,i)=>(
+              <div key={i} style={{display:"flex",gap:10,padding:"10px 0",borderBottom:i<4?`1px solid ${C.bd}`:"none"}}>
+                <div style={{width:32,height:32,borderRadius:8,flexShrink:0,background:int.type==="Call"?C.gnd:int.type==="Email"?C.ad:int.type==="WhatsApp"?C.gnd:C.pd,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,border:`1px solid ${C.bd}`}}>{int.type==="Call"?"📞":int.type==="Email"?"✉":int.type==="WhatsApp"?"💬":int.type==="Branch Visit"?"🏦":"📱"}</div>
+                <div style={{flex:1}}>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+                    <div style={{display:"flex",gap:6,alignItems:"center"}}><Badge color={int.type==="Call"?C.gn:int.type==="Email"?C.ac:C.pu}>{int.type}</Badge>{int.sent!=="N/A"&&<span style={{fontSize:10,color:int.sent==="Positive"?C.gn:C.tm}}>🤖 {int.sent}</span>}</div>
+                    <span style={{fontSize:10,color:C.tm}}>{int.date}</span>
+                  </div>
+                  <div style={{fontSize:12,color:C.tp}}>{int.note}</div>
+                  <div style={{fontSize:10,color:C.tm,marginTop:2}}>By: {int.by}{int.dur!=="-"&&` • ${int.dur}`}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+            <SH title="🤖 Interaction Intelligence"/>
+            {[{l:"Preferred Time",v:"Tue & Thu, 2–4 PM",s:"Response rate analysis"},{l:"Best Channel",v:"WhatsApp → Phone",s:"68% response on WhatsApp"},{l:"Avg Response",v:"2.4 hours",s:"Faster than segment avg (6.1h)"},{l:"NLP Topics",v:"Investment, Rates, Maturity",s:"Auto-extracted from conversations"}].map((m,i)=>(
+              <div key={i} style={{padding:12,borderRadius:8,background:C.sa,border:`1px solid ${C.bd}`,marginBottom:8}}>
+                <div style={{fontSize:10,color:C.tm,textTransform:"uppercase",marginBottom:4}}>{m.l}</div>
+                <div style={{fontSize:14,fontWeight:700}}>{m.v}</div>
+                <div style={{fontSize:10,color:C.tm,marginTop:2}}>{m.s}</div>
+              </div>
+            ))}
+          </div>
+        </div>}
+
+        {/* TAB: Family */}
+        {c360Tab==="Family"&&<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+          <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+            <SH title="Household / Related Parties"/>
+            {custDetail.family.length>0?custDetail.family.map((f,i)=>(
+              <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:12,marginBottom:6,borderRadius:10,background:C.sa,border:`1px solid ${C.bd}`}}>
+                <div style={{display:"flex",alignItems:"center",gap:10}}>
+                  <div style={{width:36,height:36,borderRadius:10,background:`linear-gradient(135deg,${C.pu}40,${C.ac}40)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:700,color:C.ac}}>{f.name[0]}</div>
+                  <div><div style={{fontSize:13,fontWeight:700}}>{f.name}</div><div style={{fontSize:10,color:C.tm}}>{f.relation}</div></div>
+                </div>
+                <Badge color={f.customer?C.gn:C.tm}>{f.customer?"Customer":"Prospect"}</Badge>
+              </div>
+            )):<div style={{padding:20,textAlign:"center",color:C.tm,fontSize:12}}>Corporate entity — no household linkage</div>}
+            {custDetail.family.filter(f=>!f.customer).length>0&&<div style={{marginTop:10,padding:10,borderRadius:8,background:C.ad,border:`1px solid ${C.bd}`}}>
+              <div style={{fontSize:12,fontWeight:700,color:C.ac}}>🤖 Household Opportunity</div>
+              <div style={{fontSize:11,color:C.ts,marginTop:2}}>{custDetail.family.filter(f=>!f.customer).length} family member(s) not yet onboarded — cross-sell potential identified</div>
+            </div>}
+          </div>
+          <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+            <SH title="🤖 Relationship Insights"/>
+            {[{l:"Household Wallet Share",v:"34%",s:"Est. total: $5.3M"},{l:"Referral Potential",v:"High — NPS Promoter",s:"2 referrals past year"},{l:"Life Events",v:"Child education (upcoming)",s:"Trigger product offers"}].map((m,i)=>(
+              <div key={i} style={{padding:12,borderRadius:8,background:C.sa,border:`1px solid ${C.bd}`,marginBottom:8}}>
+                <div style={{fontSize:10,color:C.tm,textTransform:"uppercase",marginBottom:4}}>{m.l}</div>
+                <div style={{fontSize:15,fontWeight:700}}>{m.v}</div>
+                <div style={{fontSize:10,color:C.tm,marginTop:2}}>{m.s}</div>
+              </div>
+            ))}
+          </div>
+        </div>}
+      </div>}
+    </div>}
+
+    {/* ========== OPPORTUNITIES ========== */}
+    {mod==="Opportunities"&&<div>
+      <div style={{display:"flex",gap:14,marginBottom:16,flexWrap:"wrap"}}><KPI label="Active Opps" value="67" color={C.ac}/><KPI label="Total Pipeline" value="$48.2M" color={C.gn} trend={12}/><KPI label="Weighted" value="$28.7M" color={C.go}/><KPI label="Won (MTD)" value="$8.4M" color={C.pu} trend={22}/></div>
+      <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+        <SH title="Pipeline Board" action="+ New Opportunity"/>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:10}}>
+          {["Discovery","Qualification","Proposal","Negotiation","Closed Won"].map(stage=>{
+            const opps=stage==="Closed Won"?[]:opportunities.filter(o=>o.stage===stage);
+            const sc=stage==="Discovery"?C.ac:stage==="Qualification"?C.pu:stage==="Proposal"?C.go:stage==="Negotiation"?"#F97316":C.gn;
+            return(<div key={stage} style={{background:C.sa,borderRadius:10,padding:10}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10,paddingBottom:6,borderBottom:`2px solid ${sc}`}}>
+                <span style={{fontSize:11,fontWeight:700,color:sc,textTransform:"uppercase"}}>{stage}</span><Badge color={sc}>{opps.length}</Badge>
+              </div>
+              {opps.map(o=>(<div key={o.id} style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:8,padding:10,marginBottom:6,cursor:"pointer"}} onMouseEnter={e=>e.currentTarget.style.borderColor=sc} onMouseLeave={e=>e.currentTarget.style.borderColor=C.bd}>
+                <div style={{fontSize:10,fontFamily:F.m,color:C.tm}}>{o.id}</div>
+                <div style={{fontSize:12,fontWeight:700,marginBottom:2}}>{o.customer}</div>
+                <div style={{fontSize:11,color:C.ts}}>{o.product}</div>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:4}}>
+                  <span style={{fontFamily:F.m,fontWeight:700,fontSize:12,color:C.gn}}>{o.value}</span>
+                  <Badge color={o.probability>=70?C.gn:o.probability>=50?C.go:C.rd}>{o.probability}%</Badge>
+                </div>
+              </div>))}
+              {opps.length===0&&<div style={{padding:16,textAlign:"center",color:C.tm,fontSize:11}}>No opportunities</div>}
+            </div>);
+          })}
+        </div>
+      </div>
+    </div>}
+
+    {/* ========== SERVICE DESK ========== */}
+    {mod==="Service Desk"&&<div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+        <div style={{display:"flex",gap:6}}>{["All","Open","In Progress","Escalated","Resolved"].map(f=><button key={f} onClick={()=>setSrFilter(f)} style={{padding:"5px 12px",borderRadius:20,border:`1px solid ${C.bd}`,background:srFilter===f?C.ac:"transparent",color:srFilter===f?"#fff":C.ts,cursor:"pointer",fontSize:11,fontWeight:600,fontFamily:F.d}}>{f}</button>)}</div>
+        <Btn primary onClick={()=>{setSrForm({customer:"",category:"Account",priority:"Medium",issue:""});setShowCreateSR(true)}}>+ Create SR</Btn>
+      </div>
+      <div style={{display:"flex",gap:14,marginBottom:14,flexWrap:"wrap"}}><KPI label="Open SRs" value="47" color={C.ac}/><KPI label="SLA Breached" value="8" color={C.rd}/><KPI label="Avg Resolution" value="4.2h" color={C.gn} trend={-15}/><KPI label="CSAT" value="4.1/5" color={C.go}/></div>
+      <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,overflow:"hidden"}}>
+        <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+          <thead><tr style={{borderBottom:`2px solid ${C.bd}`}}>{["SR ID","Customer","Category","Issue","Priority","Status","SLA","Assignee","Created"].map(h=><th key={h} style={{padding:"10px",textAlign:"left",fontSize:10,color:C.tm,fontWeight:600,textTransform:"uppercase"}}>{h}</th>)}</tr></thead>
+          <tbody>{serviceRequests.filter(sr=>srFilter==="All"||sr.status===srFilter).map(sr=>(
+            <tr key={sr.id} style={{borderBottom:`1px solid ${C.bd}`,background:sr.sla==="Breached"?C.rdd:"transparent"}}>
+              <td style={{padding:10,fontFamily:F.m,color:C.ac,fontSize:11}}>{sr.id}</td>
+              <td style={{padding:10,fontWeight:600}}>{sr.customer}</td>
+              <td style={{padding:10}}><Badge color={C.tm}>{sr.category}</Badge></td>
+              <td style={{padding:10,fontSize:11,maxWidth:180}}>{sr.issue}</td>
+              <td style={{padding:10}}><Badge color={sr.priority==="High"?C.rd:sr.priority==="Medium"?C.go:C.gn}>{sr.priority}</Badge></td>
+              <td style={{padding:10}}><Badge color={sr.status==="Escalated"?C.rd:sr.status==="Open"?C.go:sr.status==="Resolved"?C.gn:C.ac}>{sr.status}</Badge></td>
+              <td style={{padding:10}}><span style={{fontSize:11,fontWeight:700,color:sr.sla==="Breached"?C.rd:C.go}}>{sr.sla}</span></td>
+              <td style={{padding:10,fontSize:11}}>{sr.assignee}</td>
+              <td style={{padding:10,fontSize:11,color:C.tm}}>{sr.created}</td>
+            </tr>
+          ))}</tbody>
+        </table>
+      </div>
+    </div>}
+
+    {/* ========== CAMPAIGNS ========== */}
+    {mod==="Campaigns"&&<div>
+      <div style={{display:"flex",gap:14,marginBottom:16,flexWrap:"wrap"}}><KPI label="Active" value="2" color={C.ac}/><KPI label="Total Reach" value="12,320" color={C.gn} trend={34}/><KPI label="Conversions" value="799" color={C.go}/><KPI label="Avg ROI" value="5.5x" color={C.pu} trend={18}/></div>
+      {campaigns.map(cm=>(<div key={cm.id} style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:18,marginBottom:14}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14}}>
+          <div><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}><h3 style={{margin:0,fontSize:15,fontWeight:700}}>{cm.name}</h3><Badge color={cm.status==="Active"?C.gn:C.go}>{cm.status}</Badge></div>
+            <div style={{fontSize:11,color:C.tm}}>{cm.channel} • {cm.startDate} → {cm.endDate} • Budget: {cm.budget}</div></div>
+          <span style={{fontFamily:F.m,fontWeight:800,fontSize:22,color:cm.roi!=="-"?C.gn:C.tm}}>{cm.roi}</span>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
+          {[{l:"Target",v:cm.target.toLocaleString(),cl:C.ac},{l:"Reached",v:cm.reached.toLocaleString(),cl:C.pu},{l:"Converted",v:cm.converted.toLocaleString(),cl:C.gn},{l:"Conv %",v:cm.reached>0?`${((cm.converted/cm.reached)*100).toFixed(1)}%`:"-",cl:C.go}].map((m,i)=>(
+            <div key={i} style={{background:C.sa,borderRadius:8,padding:10,textAlign:"center"}}><div style={{fontSize:9,color:C.tm,textTransform:"uppercase",marginBottom:3}}>{m.l}</div><div style={{fontSize:18,fontWeight:700,fontFamily:F.m,color:m.cl}}>{m.v}</div></div>
+          ))}
+        </div>
+        {cm.status==="Active"&&<div style={{marginTop:10}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:10,color:C.tm}}>Progress</span><span style={{fontSize:10,color:C.tm,fontFamily:F.m}}>{Math.round((cm.reached/cm.target)*100)}%</span></div><div style={{width:"100%",height:6,borderRadius:3,background:C.sa}}><div style={{width:`${(cm.reached/cm.target)*100}%`,height:"100%",borderRadius:3,background:`linear-gradient(90deg,${C.ac},${C.gn})`}}/></div></div>}
+      </div>))}
+    </div>}
+
+    {/* ========== REPORTS ========== */}
+    {mod==="Reports"&&<div>
+      <SH title="Report Library"/>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14}}>
+        {[{n:"Lead Conversion Analysis",c:"Lead Mgmt",f:"Daily",d:"Source, product, RM-wise funnel with TAT"},{n:"Pipeline Health",c:"Sales",f:"Weekly",d:"Stage-wise value, aging, win/loss ratio"},{n:"Customer Relationship MIS",c:"CRM",f:"Monthly",d:"Acquisitions, attrition, cross-sell, NPS"},{n:"SLA Compliance",c:"Service",f:"Daily",d:"SR TAT, breach analysis, resolution metrics"},{n:"Campaign Performance",c:"Marketing",f:"On-demand",d:"Channel ROI, lead quality, A/B results"},{n:"KYC & Compliance",c:"Compliance",f:"Weekly",d:"KYC expiry, CERSAI, AML, FATCA"},{n:"Branch Scorecard",c:"Mgmt",f:"Monthly",d:"Branch leads, conversions, pipeline, NPS"},{n:"RM Performance",c:"HR/Sales",f:"Monthly",d:"Portfolio, cross-sell, conversion, CSAT"},{n:"Product Penetration",c:"Strategy",f:"Quarterly",d:"Holding patterns, cross-sell gaps, dormancy"}].map((r,i)=>(
+          <div key={i} style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16,cursor:"pointer"}} onMouseEnter={e=>e.currentTarget.style.borderColor=C.ac} onMouseLeave={e=>e.currentTarget.style.borderColor=C.bd}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}><Badge color={C.ac}>{r.c}</Badge><Badge color={C.tm}>{r.f}</Badge></div>
+            <div style={{fontSize:13,fontWeight:700,marginBottom:6}}>{r.n}</div>
+            <div style={{fontSize:11,color:C.tm,lineHeight:1.4}}>{r.d}</div>
+            <div style={{marginTop:10,display:"flex",gap:6}}><Btn small primary full>View</Btn><Btn small full>Export</Btn></div>
+          </div>
+        ))}
+      </div>
+    </div>}
+
+    {/* ========== SETTINGS ========== */}
+    {mod==="Settings"&&<div>
+      <Tabs tabs={["Workflows","Product Config","Field Config","Audit Trail","Notifications"]} active={settingsTab} onSelect={setSettingsTab}/>
+
+      {/* Workflow Builder */}
+      {settingsTab==="Workflows"&&<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+        <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+          <SH title="Lead Assignment Rules" action="+ Add Rule"/>
+          {[{name:"Round Robin — Home Loan",trigger:"Product = Home Loan",action:"Assign to RM pool (CP Branch)",status:"Active"},{name:"Capacity Based — Business Loan",trigger:"Amount > $500K",action:"Assign to Senior RM with < 20 active leads",status:"Active"},{name:"Geography — Walk-in",trigger:"Source = Branch Walk-in",action:"Assign to Branch RM of originating branch",status:"Active"},{name:"DSA Lead — Auto Score",trigger:"Source = DSA",action:"Run bureau check → Score → Assign if score > 650",status:"Active"}].map((r,i)=>(
+            <div key={i} style={{padding:12,marginBottom:6,borderRadius:8,background:C.sa,border:`1px solid ${C.bd}`,borderLeft:`4px solid ${C.ac}`}}>
+              <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{fontSize:12,fontWeight:700}}>{r.name}</span><Badge color={C.gn}>{r.status}</Badge></div>
+              <div style={{fontSize:11,color:C.tm}}>IF: {r.trigger}</div>
+              <div style={{fontSize:11,color:C.ac,fontWeight:600}}>THEN: {r.action}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+          <SH title="Approval & Escalation Workflows" action="+ Add Workflow"/>
+          {[{name:"Loan Sanction Approval",flow:"RM → Credit Officer → Branch Manager → Zonal Head",trigger:"Loan amount thresholds",status:"Active"},{name:"Fee Waiver Approval",flow:"RM → Branch Manager",trigger:"Waiver amount > $500",status:"Active"},{name:"SLA Escalation Matrix",flow:"L1 (4h) → L2 (8h) → Branch Head (12h) → Zonal (24h)",trigger:"SR not resolved within SLA",status:"Active"},{name:"KYC Re-verification",flow:"System Alert → RM → Compliance Officer",trigger:"KYC expiry within 30 days",status:"Active"}].map((w,i)=>(
+            <div key={i} style={{padding:12,marginBottom:6,borderRadius:8,background:C.sa,border:`1px solid ${C.bd}`,borderLeft:`4px solid ${C.pu}`}}>
+              <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{fontSize:12,fontWeight:700}}>{w.name}</span><Badge color={C.gn}>{w.status}</Badge></div>
+              <div style={{fontSize:11,color:C.pu,fontWeight:600,marginBottom:2}}>Flow: {w.flow}</div>
+              <div style={{fontSize:11,color:C.tm}}>Trigger: {w.trigger}</div>
+            </div>
+          ))}
+        </div>
+      </div>}
+
+      {/* Product Config */}
+      {settingsTab==="Product Config"&&<div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+        <SH title="Product Catalog & Eligibility Engine" action="+ Add Product"/>
+        <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+          <thead><tr style={{borderBottom:`2px solid ${C.bd}`}}>{["Product","Type","Min Amount","Max Amount","Min Bureau Score","Min Income","Max LTV","Documents Required","Status"].map(h=><th key={h} style={{padding:"8px 10px",textAlign:"left",fontSize:10,color:C.tm,fontWeight:600,textTransform:"uppercase"}}>{h}</th>)}</tr></thead>
+          <tbody>{[
+            {p:"Home Loan",t:"Conventional",min:"$50K",max:"$2M",bur:"700",inc:"$40K/yr",ltv:"80%",docs:"ID, Income, Property",s:"Active"},
+            {p:"Personal Loan",t:"Conventional",min:"$5K",max:"$100K",bur:"680",inc:"$25K/yr",ltv:"-",docs:"ID, Income, Bank Stmt",s:"Active"},
+            {p:"Business Loan",t:"Conventional",min:"$100K",max:"$5M",bur:"720",inc:"$200K rev",ltv:"-",docs:"ID, Financials, GST, CMA",s:"Active"},
+            {p:"Murabaha Home",t:"Islamic",min:"$50K",max:"$2M",bur:"700",inc:"$40K/yr",ltv:"80%",docs:"ID, Income, Property, Sharia Cert",s:"Active"},
+            {p:"Ijara Auto",t:"Islamic",min:"$10K",max:"$150K",bur:"680",inc:"$30K/yr",ltv:"90%",docs:"ID, Income, Vehicle Quotation",s:"Active"},
+            {p:"Musharakah WC",t:"Islamic",min:"$200K",max:"$10M",bur:"720",inc:"$500K rev",ltv:"-",docs:"MOA, Financials, Sharia Board Approval",s:"Active"},
+          ].map((r,i)=>(
+            <tr key={i} style={{borderBottom:`1px solid ${C.bd}`}}>
+              <td style={{padding:8,fontWeight:600}}>{r.p}</td>
+              <td style={{padding:8}}><Badge color={r.t==="Islamic"?C.is:C.tm}>{r.t}</Badge></td>
+              <td style={{padding:8,fontFamily:F.m}}>{r.min}</td>
+              <td style={{padding:8,fontFamily:F.m}}>{r.max}</td>
+              <td style={{padding:8,fontFamily:F.m}}>{r.bur}</td>
+              <td style={{padding:8,fontFamily:F.m}}>{r.inc}</td>
+              <td style={{padding:8,fontFamily:F.m}}>{r.ltv}</td>
+              <td style={{padding:8,fontSize:11}}>{r.docs}</td>
+              <td style={{padding:8}}><Badge color={C.gn}>{r.s}</Badge></td>
+            </tr>
+          ))}</tbody>
+        </table>
+      </div>}
+
+      {/* Field Config */}
+      {settingsTab==="Field Config"&&<div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+        <SH title="Custom Field Configuration" action="+ Add Field"/>
+        <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+          <thead><tr style={{borderBottom:`2px solid ${C.bd}`}}>{["Field Name","Entity","Type","Mandatory","Visible To","Status","Actions"].map(h=><th key={h} style={{padding:"8px 10px",textAlign:"left",fontSize:10,color:C.tm,fontWeight:600,textTransform:"uppercase"}}>{h}</th>)}</tr></thead>
+          <tbody>{[
+            {n:"Employer Name",e:"Lead",t:"Text",m:"Yes",v:"RM, BM",s:"Active"},{n:"Annual Turnover",e:"Lead",t:"Currency",m:"No",v:"RM, BM, Credit",s:"Active"},
+            {n:"Preferred Language",e:"Customer",t:"Dropdown",m:"No",v:"All",s:"Active"},{n:"Relationship Since",e:"Customer",t:"Date",m:"Yes",v:"All",s:"Active"},
+            {n:"Expected Closure",e:"Opportunity",t:"Date",m:"Yes",v:"RM, BM",s:"Active"},{n:"Competitor Offer",e:"Opportunity",t:"Text",m:"No",v:"RM, BM",s:"Active"},
+            {n:"Sharia Board Ref",e:"Islamic Contract",t:"Text",m:"Yes",v:"RM, Compliance",s:"Active"},{n:"Zakat Eligible",e:"Islamic Customer",t:"Boolean",m:"Yes",v:"RM, Compliance",s:"Active"},
+          ].map((f,i)=>(
+            <tr key={i} style={{borderBottom:`1px solid ${C.bd}`}}>
+              <td style={{padding:8,fontWeight:600}}>{f.n}</td>
+              <td style={{padding:8}}><Badge color={C.ac}>{f.e}</Badge></td>
+              <td style={{padding:8}}><Badge color={C.tm}>{f.t}</Badge></td>
+              <td style={{padding:8}}><span style={{color:f.m==="Yes"?C.rd:C.gn,fontWeight:600}}>{f.m}</span></td>
+              <td style={{padding:8,fontSize:11}}>{f.v}</td>
+              <td style={{padding:8}}><Badge color={C.gn}>{f.s}</Badge></td>
+              <td style={{padding:8}}><div style={{display:"flex",gap:4}}><Btn small color={C.ac}>Edit</Btn><Btn small color={C.rd}>Delete</Btn></div></td>
+            </tr>
+          ))}</tbody>
+        </table>
+      </div>}
+
+      {/* Audit Trail */}
+      {settingsTab==="Audit Trail"&&<div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+        <SH title="Audit Trail" count={auditLogs.length}/>
+        <div style={{display:"flex",gap:6,marginBottom:14}}>
+          <Inp label="" placeholder="Filter by user..." /><Inp label="" placeholder="Filter by entity..." /><Inp label="" placeholder="Filter by action..." />
+        </div>
+        <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+          <thead><tr style={{borderBottom:`2px solid ${C.bd}`}}>{["Timestamp","User","Action","Entity","Details","IP"].map(h=><th key={h} style={{padding:"8px 10px",textAlign:"left",fontSize:10,color:C.tm,fontWeight:600,textTransform:"uppercase"}}>{h}</th>)}</tr></thead>
+          <tbody>{auditLogs.map((l,i)=>(
+            <tr key={i} style={{borderBottom:`1px solid ${C.bd}`}}>
+              <td style={{padding:8,fontFamily:F.m,fontSize:11,color:C.tm}}>{l.ts}</td>
+              <td style={{padding:8,fontWeight:600}}>{l.user}</td>
+              <td style={{padding:8}}><Badge color={l.action.includes("Breach")?C.rd:l.action.includes("Auto")?C.pu:C.ac}>{l.action}</Badge></td>
+              <td style={{padding:8,fontFamily:F.m,fontSize:11,color:C.ac}}>{l.entity}</td>
+              <td style={{padding:8,fontSize:11}}>{l.detail}</td>
+              <td style={{padding:8,fontFamily:F.m,fontSize:11,color:C.tm}}>{l.ip}</td>
+            </tr>
+          ))}</tbody>
+        </table>
+      </div>}
+
+      {/* Notification Config */}
+      {settingsTab==="Notifications"&&<div style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:12,padding:16}}>
+        <SH title="Notification & Alert Configuration" action="+ Add Rule"/>
+        {[{event:"SLA Breach",channels:["In-App","Email","SMS"],recipients:"Assigned RM + Manager",timing:"Immediate",status:"Active"},
+          {event:"Lead Score > 80",channels:["In-App","Push"],recipients:"Assigned RM",timing:"Real-time",status:"Active"},
+          {event:"KYC Expiry (30 days)",channels:["Email","In-App"],recipients:"RM + Compliance",timing:"Daily batch",status:"Active"},
+          {event:"High-value Transaction",channels:["SMS","Email"],recipients:"Customer + RM",timing:"Real-time",status:"Active"},
+          {event:"Campaign Milestone",channels:["In-App"],recipients:"Campaign Owner",timing:"On threshold hit",status:"Active"},
+          {event:"Maker-Checker Pending",channels:["In-App","Email"],recipients:"Approver",timing:"Immediate",status:"Active"},
+          {event:"Deduplication Alert",channels:["In-App"],recipients:"Data Quality Team",timing:"On lead creation",status:"Active"},
+        ].map((n,i)=>(
+          <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:12,marginBottom:6,borderRadius:8,background:C.sa,border:`1px solid ${C.bd}`}}>
+            <div style={{flex:1}}><div style={{fontSize:12,fontWeight:700}}>{n.event}</div><div style={{fontSize:11,color:C.tm,marginTop:2}}>To: {n.recipients} • {n.timing}</div></div>
+            <div style={{display:"flex",gap:6,alignItems:"center"}}>{n.channels.map(ch=><Badge key={ch} color={C.ac}>{ch}</Badge>)}<Badge color={C.gn}>{n.status}</Badge><Btn small>Edit</Btn></div>
+          </div>
+        ))}
+      </div>}
+    </div>}
+
+    </main>
+  </div>
+
+  {/* ========== MODALS ========== */}
+
+  {/* Log Interaction */}
+  {showLogInteraction&&<Modal title="📋 Log Interaction" onClose={()=>setShowLogInteraction(false)}>
+    <Inp label="Interaction Type" options={["Call","Email","Branch Visit","WhatsApp","SMS","Video Call","Meeting"]} value={interactionForm.type} onChange={e=>setInteractionForm({...interactionForm,type:e.target.value})}/>
+    <Inp label="Subject" placeholder="Brief subject of the interaction" value={interactionForm.subject} onChange={e=>setInteractionForm({...interactionForm,subject:e.target.value})}/>
+    <Inp label="Notes" type="textarea" placeholder="Detailed notes from the interaction..." value={interactionForm.notes} onChange={e=>setInteractionForm({...interactionForm,notes:e.target.value})}/>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+      <Inp label="Duration (minutes)" placeholder="e.g. 15" value={interactionForm.duration} onChange={e=>setInteractionForm({...interactionForm,duration:e.target.value})}/>
+      <Inp label="Outcome / Sentiment" options={["Positive","Neutral","Negative","Follow-up Required","Escalation Needed"]} value={interactionForm.outcome} onChange={e=>setInteractionForm({...interactionForm,outcome:e.target.value})}/>
+    </div>
+    <Inp label="Next Action" options={["None","Schedule Follow-up","Send Document","Escalate","Convert Lead","Create SR"]} value="None" onChange={()=>{}}/>
+    <div style={{display:"flex",gap:8,marginTop:8}}><Btn primary full onClick={()=>setShowLogInteraction(false)}>Save Interaction</Btn><Btn full onClick={()=>setShowLogInteraction(false)}>Cancel</Btn></div>
+  </Modal>}
+
+  {/* Create SR */}
+  {showCreateSR&&<Modal title="⚑ Create Service Request" onClose={()=>setShowCreateSR(false)}>
+    <Inp label="Customer" placeholder="Search customer..." value={srForm.customer} onChange={e=>setSrForm({...srForm,customer:e.target.value})}/>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+      <Inp label="Category" options={["Account","Loan","Card","Digital","Trade Finance","Insurance","Compliance","Other"]} value={srForm.category} onChange={e=>setSrForm({...srForm,category:e.target.value})}/>
+      <Inp label="Priority" options={["Low","Medium","High","Critical"]} value={srForm.priority} onChange={e=>setSrForm({...srForm,priority:e.target.value})}/>
+    </div>
+    <Inp label="Issue Description" type="textarea" placeholder="Describe the issue in detail..." value={srForm.issue} onChange={e=>setSrForm({...srForm,issue:e.target.value})}/>
+    <Inp label="Assign To" options={["Auto-assign (SLA rules)","Ops Team","Card Ops","IT Helpdesk","Credit Head","Compliance"]} value="Auto-assign (SLA rules)" onChange={()=>{}}/>
+    <div style={{padding:10,borderRadius:8,background:C.ad,marginBottom:12}}><span style={{fontSize:11,color:C.ac,fontWeight:600}}>ℹ SLA Timer: {srForm.priority==="Critical"?"2 hours":srForm.priority==="High"?"4 hours":srForm.priority==="Medium"?"8 hours":"24 hours"} (based on priority)</span></div>
+    <div style={{display:"flex",gap:8}}><Btn primary full onClick={()=>setShowCreateSR(false)}>Create SR</Btn><Btn full onClick={()=>setShowCreateSR(false)}>Cancel</Btn></div>
+  </Modal>}
+
+  {/* Create Lead */}
+  {showCreateLead&&<Modal title="+ Create New Lead" onClose={()=>setShowCreateLead(false)}>
+    <Inp label="Name" placeholder="Full name or company name" value={leadForm.name} onChange={e=>setLeadForm({...leadForm,name:e.target.value})}/>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+      <Inp label="Phone" placeholder="+1 555-0100" value={leadForm.phone} onChange={e=>setLeadForm({...leadForm,phone:e.target.value})}/>
+      <Inp label="Email" placeholder="email@example.com" value={leadForm.email} onChange={e=>setLeadForm({...leadForm,email:e.target.value})}/>
+    </div>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+      <Inp label="Product Interest" options={["Home Loan","Personal Loan","Business Loan","Working Capital","Fixed Deposit","Credit Card","Murabaha","Ijara","Musharakah","Takaful"]} value={leadForm.product} onChange={e=>setLeadForm({...leadForm,product:e.target.value})}/>
+      <Inp label="Source" options={["Website","Branch Walk-in","Referral","Campaign","Mobile App","DSA","Social Media","Call Center"]} value={leadForm.source} onChange={e=>setLeadForm({...leadForm,source:e.target.value})}/>
+    </div>
+    <Inp label="Estimated Amount" placeholder="e.g. $500K" value={leadForm.amount} onChange={e=>setLeadForm({...leadForm,amount:e.target.value})}/>
+    {leadForm.name.length>3&&<div style={{padding:10,borderRadius:8,background:"#FEF3C7",border:"1px solid #F59E0B40",marginBottom:12}}>
+      <span style={{fontSize:11,fontWeight:700,color:"#92400E"}}>🔍 Dedup Check: </span><span style={{fontSize:11,color:"#92400E"}}>{customers.some(c=>c.name.toLowerCase().includes(leadForm.name.toLowerCase()))?"⚠ Potential match found — review before saving":"✓ No duplicates detected"}</span>
+    </div>}
+    <div style={{display:"flex",gap:8}}><Btn primary full onClick={()=>setShowCreateLead(false)}>Save Lead</Btn><Btn full onClick={()=>{setShowCreateLead(false)}}>Cancel</Btn></div>
+  </Modal>}
+
+  {/* Document Upload */}
+  {showDocUpload&&<Modal title="📄 Upload Document" onClose={()=>setShowDocUpload(false)}>
+    <Inp label="Document Type" options={["ID Proof","Address Proof","Income Proof","Bank Statements","Property Documents","ITR","MOA/AOA","Board Resolution","GST Certificate","Audited Financials","CMA Data","Sharia Board Approval","Trade License","Salary Certificate","Other"]} value="ID Proof" onChange={()=>{}}/>
+    <div style={{border:`2px dashed ${C.bd}`,borderRadius:12,padding:32,textAlign:"center",marginBottom:12,cursor:"pointer",background:C.sa}}>
+      <div style={{fontSize:32,marginBottom:8}}>📎</div>
+      <div style={{fontSize:13,fontWeight:600,color:C.ac}}>Click to upload or drag & drop</div>
+      <div style={{fontSize:11,color:C.tm,marginTop:4}}>PDF, JPG, PNG up to 10MB</div>
+    </div>
+    <Inp label="Notes" type="textarea" placeholder="Optional notes about this document..." value="" onChange={()=>{}}/>
+    <div style={{display:"flex",gap:8}}><Btn primary full onClick={()=>setShowDocUpload(false)}>Upload & Save</Btn><Btn full onClick={()=>setShowDocUpload(false)}>Cancel</Btn></div>
+  </Modal>}
+
+  {/* Quick Communication */}
+  {showQuickComm&&<Modal title={`💬 Send ${commForm.channel}`} onClose={()=>setShowQuickComm(false)}>
+    <Inp label="Channel" options={["Email","SMS","WhatsApp","Phone"]} value={commForm.channel} onChange={e=>setCommForm({...commForm,channel:e.target.value})}/>
+    <Inp label="To" placeholder="Recipient" value={commForm.to} onChange={e=>setCommForm({...commForm,to:e.target.value})}/>
+    {commForm.channel==="Email"&&<Inp label="Subject" placeholder="Email subject" value={commForm.subject} onChange={e=>setCommForm({...commForm,subject:e.target.value})}/>}
+    {commForm.channel==="Phone"?
+      <div style={{padding:20,textAlign:"center",background:C.sa,borderRadius:10,marginBottom:12}}><div style={{fontSize:24,marginBottom:8}}>📞</div><div style={{fontSize:16,fontWeight:700}}>Initiating call to {commForm.to}</div><div style={{fontSize:12,color:C.tm,marginTop:4}}>Call will be logged automatically via CTI integration</div></div>
+    :<>
+      <Inp label="Template" options={["None","Welcome","Follow-up","Document Reminder","Product Offer","Payment Reminder","Custom"]} value="None" onChange={()=>{}}/>
+      <Inp label="Message" type="textarea" placeholder="Type your message..." value={commForm.body} onChange={e=>setCommForm({...commForm,body:e.target.value})}/>
+    </>}
+    <div style={{display:"flex",gap:8}}><Btn primary full onClick={()=>setShowQuickComm(false)}>{commForm.channel==="Phone"?"Log Call":"Send"}</Btn><Btn full onClick={()=>setShowQuickComm(false)}>Cancel</Btn></div>
+  </Modal>}
+
+  {/* Bulk Actions */}
+  {showBulkAction&&<Modal title={`⚡ Bulk Actions (${selectedLeads.length} selected)`} onClose={()=>setShowBulkAction(false)}>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+      {[{a:"Reassign to RM",i:"🔄",c:C.ac},{a:"Update Status",i:"📊",c:C.go},{a:"Send Bulk SMS",i:"💬",c:C.gn},{a:"Send Bulk Email",i:"✉",c:C.pu},{a:"Move to Stage",i:"➡",c:"#F97316"},{a:"Export Selected",i:"⇣",c:C.tm}].map((b,i)=>(
+        <button key={i} onClick={()=>setShowBulkAction(false)} style={{padding:16,borderRadius:10,border:`1px solid ${C.bd}`,background:C.sa,cursor:"pointer",textAlign:"center"}}>
+          <div style={{fontSize:20,marginBottom:6}}>{b.i}</div>
+          <div style={{fontSize:13,fontWeight:700,color:b.c}}>{b.a}</div>
+        </button>
+      ))}
+    </div>
+  </Modal>}
+
+  {/* Calendar */}
+  {showCalendar&&<Modal title="📅 My Calendar" onClose={()=>setShowCalendar(false)} wide>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+      <div>
+        <div style={{fontSize:13,fontWeight:700,marginBottom:10}}>Today — May 18, 2026</div>
+        {[{t:"10:00 AM",e:"Follow-up call — Rajesh Sharma (Home Loan)",type:"Lead",dur:"30 min"},{t:"11:30 AM",e:"Review disputed transaction — Priya Mehta",type:"Service",dur:"20 min"},{t:"2:00 PM",e:"Meeting — Vikram Industries CFO (LC/BG)",type:"Opportunity",dur:"1 hour"},{t:"3:00 PM",e:"FD maturity reminders (batch)",type:"Campaign",dur:"30 min"},{t:"4:30 PM",e:"Branch MIS review with Branch Head",type:"Report",dur:"45 min"}].map((ev,i)=>(
+          <div key={i} style={{display:"flex",gap:10,padding:10,marginBottom:4,borderRadius:8,background:C.sa,border:`1px solid ${C.bd}`}}>
+            <div style={{width:65,fontSize:11,fontFamily:F.m,color:C.ac,fontWeight:600,flexShrink:0}}>{ev.t}</div>
+            <div style={{flex:1}}><div style={{fontSize:12,fontWeight:600}}>{ev.e}</div><div style={{display:"flex",gap:6,marginTop:3}}><Badge color={ev.type==="Lead"?C.ac:ev.type==="Service"?C.rd:ev.type==="Opportunity"?C.gn:C.go}>{ev.type}</Badge><span style={{fontSize:10,color:C.tm}}>{ev.dur}</span></div></div>
+          </div>
+        ))}
+      </div>
+      <div>
+        <div style={{fontSize:13,fontWeight:700,marginBottom:10}}>Upcoming This Week</div>
+        {[{d:"May 19",e:"KYC re-verification — 5 accounts",type:"Compliance"},{d:"May 20",e:"CERSAI registration deadline",type:"Compliance"},{d:"May 21",e:"Portfolio review — Ahmed Al-Rashid",type:"Islamic"},{d:"May 22",e:"Campaign CMP-53 launch prep",type:"Campaign"},{d:"May 23",e:"MIS report submission — Branch Head",type:"Report"}].map((ev,i)=>(
+          <div key={i} style={{display:"flex",gap:10,padding:10,marginBottom:4,borderRadius:8,background:C.sa,border:`1px solid ${C.bd}`}}>
+            <div style={{width:50,fontSize:11,fontWeight:600,color:C.tm,flexShrink:0}}>{ev.d}</div>
+            <div style={{flex:1}}><div style={{fontSize:12,fontWeight:600}}>{ev.e}</div><Badge color={ev.type==="Compliance"?C.rd:ev.type==="Islamic"?C.is:C.go}>{ev.type}</Badge></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </Modal>}
+
+  {/* Product Eligibility Checker */}
+  {showEligibility&&<Modal title="🏦 Product Eligibility Check" onClose={()=>setShowEligibility(false)} wide>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:14}}>
+      <Inp label="Annual Income" placeholder="$50,000" value="" onChange={()=>{}}/><Inp label="Bureau Score" placeholder="750" value="" onChange={()=>{}}/>
+      <Inp label="Employment Type" options={["Salaried","Self-Employed","Business","Professional"]} value="Salaried" onChange={()=>{}}/><Inp label="Existing Obligations" placeholder="$500/mo" value="" onChange={()=>{}}/>
+    </div>
+    <div style={{fontSize:13,fontWeight:700,marginBottom:10}}>Eligible Products</div>
+    {[{p:"Home Loan",eligible:true,maxAmt:"$800K",rate:"6.5%",reason:"Score 750+ ✓, Income ✓, LTV within limits"},{p:"Personal Loan",eligible:true,maxAmt:"$50K",rate:"10.2%",reason:"Score 750+ ✓, FOIR within 50%"},{p:"Credit Card — Gold",eligible:true,maxAmt:"$15K limit",rate:"-",reason:"Score 750+ ✓, Income > $40K ✓"},{p:"Business Loan",eligible:false,maxAmt:"-",rate:"-",reason:"Requires Self-Employed or Business type"},{p:"Murabaha Home Finance",eligible:true,maxAmt:"$800K",rate:"Margin 3.2%",reason:"Sharia-compliant equivalent available"}].map((p,i)=>(
+      <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:10,marginBottom:4,borderRadius:8,background:p.eligible?C.gnd:C.rdd,border:`1px solid ${p.eligible?C.gn+"30":C.rd+"30"}`}}>
+        <div><div style={{fontSize:13,fontWeight:700}}>{p.p}</div><div style={{fontSize:11,color:C.tm,marginTop:2}}>{p.reason}</div></div>
+        <div style={{textAlign:"right"}}>
+          {p.eligible?<><div style={{fontSize:14,fontWeight:700,fontFamily:F.m,color:C.gn}}>Max: {p.maxAmt}</div>{p.rate!=="-"&&<div style={{fontSize:11,color:C.tm}}>Rate: {p.rate}</div>}</>:<Badge color={C.rd}>Not Eligible</Badge>}
+        </div>
+      </div>
+    ))}
+  </Modal>}
+
+  {/* Dedup Resolution */}
+  {showDedupe&&<Modal title="⚠ Deduplication Resolution" onClose={()=>setShowDedupe(false)} wide>
+    <div style={{padding:10,borderRadius:8,background:"#FEF3C7",border:"1px solid #F59E0B40",marginBottom:14}}><span style={{fontSize:12,color:"#92400E"}}>A potential duplicate has been detected. Review and choose an action.</span></div>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:14}}>
+      <div style={{background:C.sa,borderRadius:10,padding:14,border:`1px solid ${C.bd}`}}>
+        <div style={{fontSize:11,fontWeight:700,color:C.ac,marginBottom:8}}>NEW LEAD</div>
+        {leadDetail&&[["Name",leadDetail.name],["Phone",mask(leadDetail.phone,"phone")],["Email",mask(leadDetail.email,"email")],["Product",leadDetail.product],["Source",leadDetail.source]].map(([k,v],i)=>(
+          <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:i<4?`1px solid ${C.bd}`:"none"}}><span style={{fontSize:11,color:C.tm}}>{k}</span><span style={{fontSize:12,fontWeight:600}}>{v}</span></div>
+        ))}
+      </div>
+      <div style={{background:C.sa,borderRadius:10,padding:14,border:`1px solid ${C.go}40`}}>
+        <div style={{fontSize:11,fontWeight:700,color:C.go,marginBottom:8}}>EXISTING CUSTOMER</div>
+        {leadDetail&&customers.filter(c=>c.name===leadDetail.name).map(c=>[["CIF",c.id],["Name",c.name],["Segment",c.segment],["Products",c.products.length+" products"],["Since",c.since]].map(([k,v],i)=>(
+          <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:i<4?`1px solid ${C.bd}`:"none"}}><span style={{fontSize:11,color:C.tm}}>{k}</span><span style={{fontSize:12,fontWeight:600}}>{v}</span></div>
+        )))}
+      </div>
+    </div>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+      <Btn primary full color={C.gn} onClick={()=>setShowDedupe(false)}>Merge → Link to Existing</Btn>
+      <Btn full onClick={()=>setShowDedupe(false)}>Keep as Separate Lead</Btn>
+      <Btn full color={C.rd} onClick={()=>setShowDedupe(false)}>Mark as Duplicate</Btn>
+    </div>
+  </Modal>}
+
+  {/* NPS / Feedback Collection */}
+  {showNPS&&<Modal title="⭐ NPS / Customer Feedback" onClose={()=>setShowNPS(false)}>
+    <div style={{textAlign:"center",marginBottom:16}}>
+      <div style={{fontSize:14,fontWeight:700,marginBottom:10}}>How likely are you to recommend us?</div>
+      <div style={{display:"flex",justifyContent:"center",gap:6}}>
+        {[0,1,2,3,4,5,6,7,8,9,10].map(n=>(
+          <div key={n} style={{width:36,height:36,borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontWeight:700,fontSize:13,border:`2px solid ${n<=6?C.rd:n<=8?C.go:C.gn}`,color:n<=6?C.rd:n<=8?C.go:C.gn,background:n<=6?C.rdd:n<=8?C.gd:C.gnd}}>{n}</div>
+        ))}
+      </div>
+      <div style={{display:"flex",justifyContent:"space-between",marginTop:4,padding:"0 4px"}}><span style={{fontSize:10,color:C.rd}}>Detractor</span><span style={{fontSize:10,color:C.go}}>Passive</span><span style={{fontSize:10,color:C.gn}}>Promoter</span></div>
+    </div>
+    <Inp label="What could we improve?" type="textarea" placeholder="Share your feedback..." value="" onChange={()=>{}}/>
+    <Inp label="Survey Channel" options={["In-Person","Phone","Email","SMS","In-App"]} value="In-Person" onChange={()=>{}}/>
+    <div style={{display:"flex",gap:8}}><Btn primary full onClick={()=>setShowNPS(false)}>Submit Feedback</Btn><Btn full onClick={()=>setShowNPS(false)}>Skip</Btn></div>
+  </Modal>}
+
+  </div>);
+}
+
+ReactDOM.render(React.createElement(App),document.getElementById('root'));
+</script>
+</body>
+</html>
