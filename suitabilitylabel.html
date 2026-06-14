@@ -1,0 +1,145 @@
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:#ffffff;
+    padding:20px;
+}
+
+.card{
+    width:260px;
+    height:60px;
+    background:#ECECEC;
+    border-radius:4px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    overflow:hidden;
+}
+
+.left-section{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding-left:16px;
+}
+
+.icon{
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    background:#DDF5E8;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+}
+
+.icon svg{
+    width:14px;
+    height:14px;
+    stroke:#16A34A;
+}
+
+.title{
+    font-size:13px;
+    font-weight:700;
+    color:#2D2D2D;
+    line-height:1.2;
+}
+
+.right-section{
+    display:flex;
+    align-items:center;
+    height:100%;
+}
+
+.status{
+    background:#DDF5E8;
+    color:#16A34A;
+    font-size:11px;
+    font-weight:700;
+    padding:4px 10px;
+    border-radius:4px;
+    margin-right:10px;
+    letter-spacing:0.5px;
+}
+
+.refresh{
+    width:34px;
+    height:100%;
+    background:#D62D72;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    transition:0.2s ease;
+}
+
+.refresh:hover{
+    background:#C12165;
+}
+
+.refresh svg{
+    width:14px;
+    height:14px;
+    stroke:#FFFFFF;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <div class="left-section">
+
+        <div class="icon">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="2">
+                <path d="M12 3L5 6V11C5 16 8.5 19 12 21C15.5 19 19 16 19 11V6L12 3Z"/>
+            </svg>
+        </div>
+
+        <div class="title">
+            Investment<br>
+            Suitability
+        </div>
+
+    </div>
+
+    <div class="right-section">
+
+        <div class="status">
+            VALID
+        </div>
+
+        <a
+            class="refresh"
+            href="https://presales.businessbywire.com/appgb8/businessnext/StartJourney?x=jc8q7gd7jgumvw54djmubjzbl9sxq9zvaztsrvau6xhupwp8yu9urxyy9zmbarcp3l4q2el6bm46mdtuak74babrd9m47z6xarg8spz"
+            target="_blank"
+            title="Refresh Investment Suitability"
+        >
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="2">
+                <path d="M20 4V10H14"></path>
+                <path d="M20 10A8 8 0 1 1 17.66 4.34"></path>
+            </svg>
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>
